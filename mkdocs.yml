@@ -104,7 +104,23 @@ markdown_extensions:
 # Page tree
 nav:
   - Home: index.md
-  - Getting started:
-    - Installation: getting-started.md
-    - Test: test.md
+  - Get Started:
+    - Prerequisites: get-started/prerequisites.md
+    - Cluster Setup: get-started/cluster-setup.md
+    - Bootstrap: get-started/bootstrap.md
+    - DNS & Ingress: get-started/dns-ingress.md
+  - Concepts:
+    - GitOps: concepts/gitops.md
+    - Repository Structure: concepts/repo-structure.md
+    - Kustomize & Helm: concepts/kustomize-helm.md
+  - Applications:
+    - Overview: applications/index.md
+    - Adding a Vendor App: applications/vendor.md
+    - Adding a Custom App: applications/custom.md
+  - Operations:
+    - Upgrading: operations/upgrading.md
+    - Backups: operations/backups.md
+    - Troubleshooting: operations/troubleshooting.md
+  - Reference:
+    - Commands: reference/commands.md
 
