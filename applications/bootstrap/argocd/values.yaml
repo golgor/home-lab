@@ -1,0 +1,23 @@
+# ArgoCD Helm values — minimal single-cluster home-lab setup
+
+# Disable HA (not needed for home lab)
+controller:
+  replicas: 1
+
+server:
+  replicas: 1
+
+repoServer:
+  replicas: 1
+
+redis:
+  enabled: true
+
+# Disable dex (use built-in auth)
+dex:
+  enabled: false
+
+# Run in insecure mode so Traefik handles TLS termination
+configs:
+  params:
+    server.insecure: true
