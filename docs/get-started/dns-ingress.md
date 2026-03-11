@@ -27,6 +27,12 @@ Add entries on each machine that needs access:
 If you run a local DNS server (Pi-hole, Adguard Home, etc.), add a wildcard
 or individual DNS records pointing `*.home-lab.local` to your node IP.
 
+## HTTP to HTTPS Redirect
+
+Each ingress uses a Traefik `Middleware` to redirect HTTP traffic to HTTPS.
+This ensures that navigating to `http://argocd.home-lab.local` automatically
+redirects to `https://argocd.home-lab.local`.
+
 ## TLS
 
 By default, Traefik serves a self-signed certificate. Your browser will show a

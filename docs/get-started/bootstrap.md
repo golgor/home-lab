@@ -35,3 +35,4 @@ The bootstrap Kustomization at `applications/bootstrap/argocd/` deploys:
 - ArgoCD Helm chart (version defined in `kustomization.yaml`)
 - The `argocd` namespace
 - A Traefik Ingress for `argocd.home-lab.local`
+- A Traefik Middleware that redirects HTTP to HTTPS
