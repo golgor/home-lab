@@ -6,17 +6,20 @@ Mono-repo for home lab infrastructure based on k3s.
 
 - `ansible/` - Ansible playbooks for server provisioning
 - `applications/` - Application/service configurations
-  - `vendor/` - Third-party apps (e.g. Grafana, Pi-hole)
+  - `bootstrap/argocd/` - ArgoCD (manually applied, not managed by ArgoCD)
+  - `vendor/` - Third-party apps managed by ArgoCD (App of Apps pattern)
+    - `vendor-apps.yaml` - App of Apps, scans for `**/application.yaml`
+    - `sealed-secrets/` - Bitnami Sealed Secrets
+    - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
   - `custom/` - Self-developed apps (separate repos, images on GitHub)
-- `infrastructure/` - Infrastructure definitions (Kustomize + Helm)
-  - `argocd/` - ArgoCD deployment (Helm chart via Kustomize)
+- `infrastructure/` - Infrastructure definitions
 - `docs/` - MkDocs Material documentation site
 
 ## Commands
 
 ```bash
-uvx --with mkdocs --with mkdocs-techdocs-core --with mkdocs-kroki-plugin --with mkdocs-minify-plugin -- mkdocs serve --livereload
-uvx --with mkdocs --with mkdocs-techdocs-core --with mkdocs-kroki-plugin --with mkdocs-minify-plugin -- mkdocs build     # Build static docs site
+uvx --with mkdocs --with mkdocs-material --with mkdocs-kroki-plugin --with mkdocs-minify-plugin -- mkdocs serve --livereload
+uvx --with mkdocs --with mkdocs-material --with mkdocs-kroki-plugin --with mkdocs-minify-plugin -- mkdocs build     # Build static docs site
 ```
 
 ## Docs
