@@ -5,7 +5,9 @@ metadata:
   namespace: error-pages
 spec:
   parentRefs:
-    - name: traefik
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik
       namespace: traefik
       sectionName: websecure
   rules:
@@ -20,5 +22,8 @@ spec:
               type: ReplaceFullPath
               replaceFullPath: /404.html
       backendRefs:
-        - name: error-pages
+        - group: ""
+          kind: Service
+          name: error-pages
           port: 8080
+          weight: 1

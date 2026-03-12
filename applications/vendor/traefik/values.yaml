@@ -74,8 +74,8 @@ ports:
     http:
       tls:
         enabled: true
-    middlewares:
-      - "traefik-default-errors@kubernetescrd"
+      middlewares:
+        - "traefik-default-errors@kubernetescrd"
 
 resources:
   requests:
