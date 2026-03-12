@@ -1,0 +1,8 @@
+# cert-manager Helm values
+
+# Install CRDs with the chart
+crds:
+  enabled: true
+
+# Single replica for home lab
+replicaCount: 1
