@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-certs
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/golgor/home-lab.git
+    targetRevision: HEAD
+    path: applications/vendor/traefik-certs
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - SkipDryRunOnMissingResource=true
+  revisionHistoryLimit: 2

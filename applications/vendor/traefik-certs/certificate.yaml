@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: neustrom-net-wildcard
+  namespace: kube-system
+spec:
+  secretName: neustrom-net-wildcard-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.neustrom.net"
+    - "neustrom.net"
