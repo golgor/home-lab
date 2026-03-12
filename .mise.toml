@@ -1,0 +1,24 @@
+[tools]
+kubectl   = "1.35.2"
+kubeseal  = "0.35.0"
+helm      = "4.1.1"
+uv        = "0.10.9"
+
+[tasks.docs]
+description = "Serve MkDocs documentation with live reload"
+run = "uvx --with mkdocs --with mkdocs-material --with mkdocs-kroki-plugin --with mkdocs-minify-plugin -- mkdocs serve --livereload"
+
+[tasks.fetch-cert]
+description = "Fetch the kubeseal certificate from the cluster"
+run = """
+mkdir -p certs
+kubeseal --fetch-cert \
+  --controller-name=sealed-secrets \
+  --controller-namespace=sealed-secrets \
+  > certs/cert.pem
+echo "Certificate saved to certs/cert.pem"
+"""
+
+[tasks.seal-secret]
+description = "Interactively seal a secret from a .env file"
+run = "uv run scripts/seal_secret.py"
