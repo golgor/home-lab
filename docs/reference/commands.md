@@ -47,6 +47,7 @@ Runs:
 - `yamllint` — YAML syntax and style
 - `kubeconform` — Kubernetes manifest schema validation
 - `check-jsonschema` — Helm values schema validation (Traefik, cert-manager)
+- `markdownlint-cli2` — Markdown style (config in `.markdownlint.jsonc`)
 
 ## Cluster
 

@@ -51,7 +51,7 @@ Documentation for this home lab is written for two distinct personas. Every page
 ## Section → Persona Mapping
 
 | Section | Primary Persona | Rationale |
-|---|---|---|
+| --- | --- | --- |
 | `concepts/` | Persona 2 | Explains what GitOps, Kustomize, Helm, ingress *are* — no assumed knowledge |
 | `applications/` | Persona 2 | What's running and why — focus on purpose, not implementation |
 | `guides/` | Persona 1 | How-to instructions for adding/changing apps — assumes cluster knowledge |

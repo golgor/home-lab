@@ -87,7 +87,7 @@ Rather than setting up a full DNS server for local access, you can tell your com
 
 Adding the line:
 
-```
+```text
 127.0.0.1  argocd.neustrom.net
 ```
 

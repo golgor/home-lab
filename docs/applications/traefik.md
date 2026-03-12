@@ -31,7 +31,7 @@ Everything lives in `applications/vendor/traefik/`:
 Traefik supports three routing mechanisms, all enabled simultaneously:
 
 | Provider | Resource kind | Used for |
-|---|---|---|
+| --- | --- | --- |
 | `kubernetesGateway` | `HTTPRoute` | Primary — new services should use this |
 | `kubernetesCRD` | `IngressRoute`, `Middleware` | Traefik-specific features (e.g. error pages, dashboard) |
 | `kubernetesIngress` | `Ingress` | Legacy — ArgoCD still uses this |

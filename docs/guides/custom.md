@@ -28,7 +28,7 @@ No `application.yaml` needed — the ApplicationSet handles that.
 
 ## Example Structure
 
-```
+```text
 applications/custom/my-app/
 ├── kustomization.yaml
 ├── deployment.yaml

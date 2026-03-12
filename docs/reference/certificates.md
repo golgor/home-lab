@@ -17,7 +17,7 @@ graph TD
 ## Components and where they live
 
 | Resource | Kind | Namespace | File |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `neustrom-net-wildcard` | `Certificate` | `kube-system` | `applications/vendor/traefik-certs/certificate.yaml` |
 | `neustrom-net-wildcard-tls` | `Secret` (tls) | `kube-system` | auto-created by cert-manager |
 | `default` | `TLSStore` | `kube-system` | `applications/vendor/traefik-certs/tlsstore.yaml` |
@@ -55,7 +55,8 @@ kubectl get clusterissuer letsencrypt
 
 ## Renewal
 
-cert-manager automatically renews the certificate ~30 days before expiry (Let's Encrypt certs last 90 days). No manual action needed. Renewal follows the same DNS-01 flow as initial issuance.
+cert-manager automatically renews the certificate ~30 days before expiry (Let's Encrypt certs last 90 days).
+No manual action needed. Renewal follows the same DNS-01 flow as initial issuance.
 
 To force a renewal manually (e.g. after rotating the Cloudflare token):
 
@@ -71,7 +72,7 @@ kubectl delete secret neustrom-net-wildcard-tls -n kube-system
 
 The cluster runs locally at `127.0.0.1`. Since `neustrom.net` has no public A record pointing home, browsers can't resolve services via DNS. Add entries to `/etc/hosts` per service:
 
-```
+```text
 127.0.0.1  argocd.neustrom.net
 ```
 

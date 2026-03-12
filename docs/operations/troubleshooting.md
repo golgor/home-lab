@@ -4,7 +4,7 @@
 
 ### CRD Too Large for `kubectl apply`
 
-```
+```text
 The CustomResourceDefinition is invalid: metadata.annotations: Too long
 ```
 

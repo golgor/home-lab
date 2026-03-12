@@ -4,7 +4,7 @@
 
 Traefik is deployed as an ArgoCD-managed Helm application and acts as the cluster's ingress controller and reverse proxy. When a request arrives, Traefik inspects the hostname and routes it to the correct service.
 
-```
+```text
 Browser → argocd.neustrom.net → (DNS) → Node IP → Traefik → Service
 ```
 
@@ -29,7 +29,7 @@ Traefik's `TLSStore/default` references this secret, so all services get HTTPS a
 Three providers are active simultaneously:
 
 | Provider | Resource kind | Used for |
-|---|---|---|
+| --- | --- | --- |
 | `kubernetesGateway` | `HTTPRoute` | Primary — new services should use this |
 | `kubernetesCRD` | `IngressRoute`, `Middleware` | Traefik-specific features (dashboard, error pages) |
 | `kubernetesIngress` | `Ingress` | Legacy — ArgoCD still uses this |

@@ -2,7 +2,7 @@
 
 This mono-repo organizes everything needed to run the home lab.
 
-```
+```text
 home-lab/
 ├── ansible/                          # Server provisioning playbooks
 ├── applications/
@@ -21,7 +21,7 @@ home-lab/
 ## Directory Conventions
 
 | Directory | Managed By | Purpose |
-|-----------|-----------|---------|
+| ----------- | ----------- | --------- |
 | `applications/bootstrap/` | `kubectl` (manual) | Components that must exist before ArgoCD |
 | `applications/vendor/` | ArgoCD (App of Apps) | Third-party applications |
 | `applications/custom/` | ArgoCD | Your own applications |
@@ -33,7 +33,7 @@ home-lab/
 Each vendor app lives in its own directory under `applications/vendor/` and contains:
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `application.yaml` | ArgoCD Application resource (discovered by App of Apps) |
 | `kustomization.yaml` | Kustomize manifest (may include `helmCharts`) |
 | `values.yaml` | Helm values (if using a Helm chart) |
