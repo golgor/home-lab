@@ -25,6 +25,6 @@ What *is* managed in this repo is the configuration layered on top:
 
 ## TLS termination
 
-Because Traefik handles TLS centrally, new services added to the cluster get HTTPS automatically. No certificate configuration is needed on individual ingress resources — just a hostname and Traefik handles the rest.
+Because Traefik handles TLS centrally, new services added to the cluster get HTTPS automatically. Ingress resources only need a hostname — no `tls:` block, no cert-manager annotations. Traefik picks up the default certificate and does the rest.
 
 See [Certificates Deep-Dive](../reference/certificates.md) for the full technical details.
