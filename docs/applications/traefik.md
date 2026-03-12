@@ -1,7 +1,5 @@
 # Traefik
 
-*Primary audience: Persona 2*
-
 ## What is it?
 
 Traefik is the front door of the home lab. Every request from a browser — whether to ArgoCD or any other service — arrives at Traefik first. Traefik looks at the hostname (e.g. `argocd.neustrom.net`) and forwards the request to the right service running in the cluster.

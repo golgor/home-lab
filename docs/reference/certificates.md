@@ -1,9 +1,5 @@
 # Certificates Deep-Dive
 
-*Primary audience: Persona 1 — operational reference for the TLS setup.*
-
----
-
 ## Architecture overview
 
 ```mermaid

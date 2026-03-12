@@ -1,7 +1,5 @@
 # Sealed Secrets
 
-*Primary audience: Persona 2*
-
 ## What is it?
 
 Sealed Secrets solves a specific problem: how do you store passwords and API keys in Git without exposing them?

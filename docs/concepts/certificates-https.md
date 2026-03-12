@@ -1,9 +1,5 @@
 # Certificates & HTTPS
 
-*Primary audience: Persona 2 — no infrastructure background assumed.*
-
----
-
 ## The padlock in your browser
 
 When you visit a website and see a padlock icon in the address bar, it means the connection is encrypted. Nobody between you and the server — not your internet provider, not someone on the same Wi-Fi — can read what you're sending or receiving. This is HTTPS (HTTP Secure).

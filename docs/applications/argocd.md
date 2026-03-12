@@ -1,7 +1,5 @@
 # ArgoCD
 
-*Primary audience: Persona 2*
-
 ## What is it?
 
 ArgoCD is the automation engine that keeps the cluster in sync with this Git repository.

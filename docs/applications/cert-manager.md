@@ -1,7 +1,5 @@
 # cert-manager
 
-*Primary audience: Persona 2*
-
 ## What is it?
 
 cert-manager is the application that automatically obtains and renews TLS certificates — the things that make the padlock appear in your browser.
