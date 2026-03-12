@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: error-pages
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/golgor/home-lab.git
+    targetRevision: HEAD
+    path: applications/vendor/error-pages
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: error-pages
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  revisionHistoryLimit: 2

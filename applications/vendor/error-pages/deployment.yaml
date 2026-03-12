@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: error-pages
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: error-pages
+  template:
+    metadata:
+      labels:
+        app: error-pages
+    spec:
+      containers:
+        - name: error-pages
+          image: ghcr.io/tarampampam/error-pages:3
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TEMPLATE_NAME
+              value: shuffle
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
