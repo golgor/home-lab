@@ -9,3 +9,4 @@ helmCharts:
     version: "2.18.3"
     releaseName: sealed-secrets
     namespace: sealed-secrets
+    includeCRDs: true
