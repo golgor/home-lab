@@ -6,5 +6,4 @@ namespace: error-pages
 resources:
   - deployment.yaml
   - service.yaml
-  - middleware.yaml
-  - ingressroute.yaml
+  - httproute.yaml
