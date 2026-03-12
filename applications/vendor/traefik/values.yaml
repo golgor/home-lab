@@ -78,9 +78,11 @@ ports:
       middlewares:
         - "traefik-default-errors@kubernetescrd"
 
-accessLog:
-  filters:
-    statusCodes: ["400-599"]
+logs:
+  access:
+    enabled: true
+    filters:
+      statusCodes: ["400-599"]
 
 resources:
   requests:
