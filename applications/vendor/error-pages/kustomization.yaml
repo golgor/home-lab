@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: error-pages
 
 resources:
-  - namespace.yaml
   - deployment.yaml
   - service.yaml
   - middleware.yaml
