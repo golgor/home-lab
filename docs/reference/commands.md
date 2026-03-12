@@ -18,10 +18,13 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 ## Sealed Secrets
 
 ```bash
-# Install kubeseal CLI
-# https://github.com/bitnami-labs/sealed-secrets#kubeseal
+# Fetch cluster public cert (run after cluster re-install)
+mise run fetch-cert
 
-# Seal a secret
+# Seal a secret interactively from a .env file
+mise run seal-secret
+
+# Seal manually
 kubeseal --format yaml < secret.yaml > sealed-secret.yaml
 ```
 
@@ -29,11 +32,21 @@ kubeseal --format yaml < secret.yaml > sealed-secret.yaml
 
 ```bash
 # Serve docs locally with live reload
-uvx --with mkdocs --with mkdocs-material --with mkdocs-kroki-plugin --with mkdocs-minify-plugin -- mkdocs serve --livereload
-
-# Build static docs
-uvx --with mkdocs --with mkdocs-material --with mkdocs-kroki-plugin --with mkdocs-minify-plugin -- mkdocs build
+mise run docs
 ```
+
+## Linting
+
+```bash
+# Lint YAML and validate Kubernetes manifests
+mise run lint
+```
+
+Runs:
+
+- `yamllint` — YAML syntax and style
+- `kubeconform` — Kubernetes manifest schema validation
+- `check-jsonschema` — Helm values schema validation (Traefik, cert-manager)
 
 ## Cluster
 
@@ -47,8 +60,14 @@ kubectl get pods -A
 # Check ArgoCD status
 kubectl get pods -n argocd
 
-# Check ingress resources
+# Check Traefik logs (errors only — access log filters to 400-599)
+kubectl logs -n traefik -l app.kubernetes.io/name=traefik
+
+# Check ingress/routing resources
 kubectl get ingress -A
+kubectl get httproute -A
+kubectl get ingressroute -A
+kubectl get gateway -A
 
 # Check cert-manager status
 kubectl get certificates -A

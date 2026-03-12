@@ -16,15 +16,34 @@ Traefik also handles **TLS termination** — it decrypts incoming HTTPS traffic 
 
 ## How is it deployed?
 
-Traefik comes **pre-installed with k3s** and is not managed by ArgoCD. It cannot be removed without disabling it in the k3s configuration and redeploying it manually.
+Traefik is deployed as an **ArgoCD-managed Helm chart** in the `traefik` namespace — it is not the k3s default Traefik. k3s is started with `--disable=traefik` to prevent conflicts.
 
-What *is* managed in this repo is the configuration layered on top:
+Everything lives in `applications/vendor/traefik/`:
 
-- **`applications/bootstrap/argocd/middleware.yaml`** — a Traefik middleware that redirects HTTP traffic to HTTPS
-- **`applications/vendor/traefik-certs/`** — the `Certificate` resource (requesting the wildcard cert from cert-manager) and the `TLSStore` (telling Traefik to use that cert as its default for all services)
+- **`values.yaml`** — Helm chart configuration
+- **`certificate.yaml`** — requests the `*.neustrom.net` wildcard cert from cert-manager
+- **`tlsstore.yaml`** — tells Traefik to use that cert as the default for all services
+- **`dashboard-ingressroute.yaml`** — exposes the Traefik dashboard at `traefik.neustrom.net/dashboard/`
+- **`middleware-errors.yaml`** — global error page middleware applied to all traffic
+
+## Routing
+
+Traefik supports three routing mechanisms, all enabled simultaneously:
+
+| Provider | Resource kind | Used for |
+|---|---|---|
+| `kubernetesGateway` | `HTTPRoute` | Primary — new services should use this |
+| `kubernetesCRD` | `IngressRoute`, `Middleware` | Traefik-specific features (e.g. error pages, dashboard) |
+| `kubernetesIngress` | `Ingress` | Legacy — ArgoCD still uses this |
+
+HTTP traffic on port 80 is redirected to HTTPS globally at the entrypoint level — no per-route middleware needed.
 
 ## TLS termination
 
-Because Traefik handles TLS centrally, new services added to the cluster get HTTPS automatically. Ingress resources only need a hostname — no `tls:` block, no cert-manager annotations. Traefik picks up the default certificate and does the rest.
+Because Traefik handles TLS centrally, new services added to the cluster get HTTPS automatically. Route resources only need a hostname — no `tls:` block, no cert-manager annotations. Traefik picks up the default certificate from the `TLSStore` and does the rest.
 
 See [Certificates Deep-Dive](../reference/certificates.md) for the full technical details.
+
+## Error pages
+
+Unrecognised hostnames and paths return a custom 404 page via a low-priority catch-all `HTTPRoute` in the `error-pages` namespace. All other HTTP errors (401, 403, 500–599) are intercepted globally by the `default-errors` Traefik middleware applied to the `websecure` entrypoint.
