@@ -101,6 +101,9 @@ markdown_extensions:
       custom_checkbox: true
   - pymdownx.tilde
 
+not_in_nav: |
+  CLAUDE.md
+
 # Page tree
 nav:
   - Home: index.md
@@ -113,14 +116,20 @@ nav:
     - GitOps: concepts/gitops.md
     - Repository Structure: concepts/repo-structure.md
     - Kustomize & Helm: concepts/kustomize-helm.md
+    - Certificates & HTTPS: concepts/certificates-https.md
   - Applications:
     - Overview: applications/index.md
-    - Adding a Vendor App: applications/vendor.md
-    - Adding a Custom App: applications/custom.md
+    - ArgoCD: applications/argocd.md
+    - Sealed Secrets: applications/sealed-secrets.md
+    - cert-manager: applications/cert-manager.md
+    - Traefik: applications/traefik.md
+  - Guides:
+    - Adding a Vendor App: guides/vendor.md
+    - Adding a Custom App: guides/custom.md
   - Operations:
     - Upgrading: operations/upgrading.md
     - Backups: operations/backups.md
     - Troubleshooting: operations/troubleshooting.md
   - Reference:
     - Commands: reference/commands.md
-
+    - Certificates: reference/certificates.md
