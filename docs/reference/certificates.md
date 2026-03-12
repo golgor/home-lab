@@ -70,19 +70,23 @@ kubectl delete secret neustrom-net-wildcard-tls -n kube-system
 
 ## Accessing services locally (/etc/hosts)
 
-The cluster runs locally at `127.0.0.1`. Since `neustrom.net` has no public A record pointing home, browsers can't resolve services via DNS. Add entries to `/etc/hosts` per service:
+The cluster runs locally at `127.0.0.1`. Since `neustrom.net` has no public A record pointing home,
+browsers can't resolve services via DNS. Add entries to `/etc/hosts` per service:
 
 ```text
 127.0.0.1  argocd.neustrom.net
 ```
 
-The real Let's Encrypt cert still validates correctly — the browser only checks that the certificate matches the hostname, not that DNS resolves it the same way.
+The real Let's Encrypt cert still validates correctly — the browser only checks that the certificate
+matches the hostname, not that DNS resolves it the same way.
 
-For network-wide access without editing every device's hosts file, add real A records in Cloudflare pointing to the k3s node's LAN IP, or run a local DNS resolver (e.g. Pi-hole) with split-horizon DNS.
+For network-wide access without editing every device's hosts file, add real A records in Cloudflare
+pointing to the k3s node's LAN IP, or run a local DNS resolver (e.g. Pi-hole) with split-horizon DNS.
 
 ## Ingress configuration
 
-Because TLS is terminated globally via `TLSStore/default`, ingresses need **no** `tls:` block and **no** cert-manager annotations. Just specify the hostname:
+Because TLS is terminated globally via `TLSStore/default`, ingresses need **no** `tls:` block and **no**
+cert-manager annotations. Just specify the hostname:
 
 ```yaml
 spec:
@@ -91,7 +95,9 @@ spec:
       ...
 ```
 
-Traefik picks up `TLSStore/default` automatically for all HTTPS traffic. Adding cert-manager annotations (`cert-manager.io/cluster-issuer`) would trigger per-ingress certificate issuance and create redundant certs — do not add them.
+Traefik picks up `TLSStore/default` automatically for all HTTPS traffic. Adding cert-manager annotations
+(`cert-manager.io/cluster-issuer`) would trigger per-ingress certificate issuance and create redundant certs —
+do not add them.
 
 ## Cluster re-install / migration to RPi
 
@@ -105,7 +111,10 @@ What *does* need to be done:
 
 ## Why kube-system?
 
-The `Certificate` and `TLSStore` live in `kube-system` because Traefik (k3s default) runs there and can only read secrets from its own namespace. cert-manager creates the `Secret` in the same namespace as the `Certificate` resource.
+The `Certificate` and `TLSStore` live in `kube-system` because Traefik (k3s default) runs there and can only
+read secrets from its own namespace. cert-manager creates the `Secret` in the same namespace as the
+`Certificate` resource.
 
 !!! warning
-    Do not move the `Certificate` to another namespace without also moving or replicating the resulting secret to `kube-system`. Traefik will silently fall back to its self-signed cert.
+    Do not move the `Certificate` to another namespace without also moving or replicating the resulting
+    secret to `kube-system`. Traefik will silently fall back to its self-signed cert.

@@ -9,7 +9,8 @@ TODO: Describe the hardware setup (nodes, specs, networking).
 The following tools are required on your local machine:
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) — Kubernetes CLI
-- [kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/) — Manifest management (standalone, for `--enable-helm` support)
+- [kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/) — Manifest management
+  (standalone, for `--enable-helm` support)
 - [Helm](https://helm.sh/docs/intro/install/) — Required by Kustomize for Helm chart rendering
 
 ## k3s

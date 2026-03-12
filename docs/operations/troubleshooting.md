@@ -36,16 +36,19 @@ kubectl logs -n traefik -l app.kubernetes.io/name=traefik
 
 1. Verify DNS resolves to the node IP: `nslookup my-app.neustrom.net`
 2. Check the route exists:
+
    ```bash
    kubectl get httproute -A
    kubectl get ingress -A
    ```
+
 3. Check Traefik logs (see above)
 4. Verify the Gateway is ready: `kubectl get gateway -n traefik`
 
 ### HTTPRoute stuck in sync loop (ArgoCD)
 
-ArgoCD detects drift when `group`/`kind` fields are omitted from `parentRefs` or `backendRefs` — Traefik fills them in and ArgoCD sees a diff. Always include them explicitly:
+ArgoCD detects drift when `group`/`kind` fields are omitted from `parentRefs` or `backendRefs` —
+Traefik fills them in and ArgoCD sees a diff. Always include them explicitly:
 
 ```yaml
 parentRefs:
@@ -65,7 +68,8 @@ backendRefs:
 
 ### Traefik middleware not applied cross-namespace
 
-The `kubernetesCRD` provider requires `allowCrossNamespace: true` in `values.yaml` for a `Middleware` in one namespace to reference a `Service` in another. Without it, the middleware silently fails.
+The `kubernetesCRD` provider requires `allowCrossNamespace: true` in `values.yaml` for a `Middleware` in
+one namespace to reference a `Service` in another. Without it, the middleware silently fails.
 
 ### Gateway name
 
@@ -85,4 +89,5 @@ kubectl describe certificaterequest -n traefik
 kubectl logs -n cert-manager -l app=cert-manager
 ```
 
-Common cause: Cloudflare API token `SealedSecret` not applied or kubeseal cert is stale. Re-seal and re-apply after `mise run fetch-cert`.
+Common cause: Cloudflare API token `SealedSecret` not applied or kubeseal cert is stale.
+Re-seal and re-apply after `mise run fetch-cert`.

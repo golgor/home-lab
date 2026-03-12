@@ -33,6 +33,9 @@ kubeseal --format yaml < secret.yaml > sealed-secret.yaml
 ```bash
 # Serve docs locally with live reload
 mise run docs
+
+# Lint Markdown files (run after any doc changes)
+mise run lint-docs
 ```
 
 ## Linting
@@ -47,7 +50,6 @@ Runs:
 - `yamllint` — YAML syntax and style
 - `kubeconform` — Kubernetes manifest schema validation
 - `check-jsonschema` — Helm values schema validation (Traefik, cert-manager)
-- `markdownlint-cli2` — Markdown style (config in `.markdownlint.jsonc`)
 
 ## Cluster
 

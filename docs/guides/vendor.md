@@ -14,7 +14,7 @@ wrapping a Helm chart). They are automatically discovered by the App of Apps.
 
 ## Example Structure
 
-```
+```text
 applications/vendor/grafana/
 ├── application.yaml        # ArgoCD Application (discovered by App of Apps)
 ├── kustomization.yaml      # Kustomize with helmCharts

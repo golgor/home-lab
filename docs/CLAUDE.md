@@ -1,6 +1,7 @@
 # Docs Writing Guide
 
-Documentation for this home lab is written for two distinct personas. Every page should be written with one primary persona in mind.
+Documentation for this home lab is written for two distinct personas.
+Every page should be written with one primary persona in mind.
 
 ## Personas
 
@@ -9,16 +10,19 @@ Documentation for this home lab is written for two distinct personas. Every page
 **Who:** The owner of this cluster, returning after months away to migrate, debug, or extend it.
 
 **Background:**
+
 - Understands Kubernetes, GitOps, Helm, and Kustomize conceptually
 - Has forgotten the specific decisions made in *this* cluster
 - Comfortable with the terminal and kubectl
 
 **Goals:**
+
 - Migrate the cluster to a new machine (e.g. Raspberry Pi)
 - Add a new service or troubleshoot a broken one
 - Remember why something was done a certain way
 
 **Writing style:**
+
 - Terse and technical — no hand-holding
 - Lead with commands, follow with explanation
 - Always document the *why* behind non-obvious decisions
@@ -31,16 +35,19 @@ Documentation for this home lab is written for two distinct personas. Every page
 **Who:** Someone comfortable with code (CSS, JavaScript, Git) but with no infrastructure or cloud experience.
 
 **Background:**
+
 - Understands files, code, and version control
 - Has never worked with servers, containers, or Kubernetes
 - Does not know what a pod, namespace, ingress, or Helm chart is
 
 **Goals:**
+
 - Understand what this home lab is and what it runs
 - Grasp the big picture without needing to operate the cluster
 - Potentially self-host something simple in the future
 
 **Writing style:**
+
 - Friendly and incremental — build concepts before showing examples
 - Use analogies (e.g. "Kubernetes is like a supervisor that restarts apps if they crash")
 - Define jargon inline on first use, avoid it where possible
@@ -65,3 +72,4 @@ Documentation for this home lab is written for two distinct personas. Every page
 - **Mermaid diagrams** are supported and encouraged for architecture and flow explanations
 - Pages are registered in `mkdocs.yml` under `nav:` — add new pages there
 - Preview with `mise run docs`
+- **After any documentation changes, run `mise run lint-docs`** to check for Markdown style errors

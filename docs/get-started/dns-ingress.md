@@ -2,7 +2,8 @@
 
 ## How It Works
 
-Traefik is deployed as an ArgoCD-managed Helm application and acts as the cluster's ingress controller and reverse proxy. When a request arrives, Traefik inspects the hostname and routes it to the correct service.
+Traefik is deployed as an ArgoCD-managed Helm application and acts as the cluster's ingress controller and
+reverse proxy. When a request arrives, Traefik inspects the hostname and routes it to the correct service.
 
 ```text
 Browser → argocd.neustrom.net → (DNS) → Node IP → Traefik → Service
@@ -10,19 +11,24 @@ Browser → argocd.neustrom.net → (DNS) → Node IP → Traefik → Service
 
 ## DNS Setup
 
-All services are exposed under `*.neustrom.net`. DNS is managed in Cloudflare with an A record pointing to the node's public IP.
+All services are exposed under `*.neustrom.net`. DNS is managed in Cloudflare with an A record
+pointing to the node's public IP.
 
-For local access from machines on the same network, a wildcard DNS record on your local resolver (Pi-hole, AdGuard Home, etc.) pointing `*.neustrom.net` to the node's LAN IP is sufficient.
+For local access from machines on the same network, a wildcard DNS record on your local resolver
+(Pi-hole, AdGuard Home, etc.) pointing `*.neustrom.net` to the node's LAN IP is sufficient.
 
 ## HTTP to HTTPS Redirect
 
-HTTP→HTTPS redirection is handled globally at the Traefik entrypoint level — no per-route middleware or annotation is needed. Any request on port 80 is automatically redirected to port 443.
+HTTP→HTTPS redirection is handled globally at the Traefik entrypoint level — no per-route middleware
+or annotation is needed. Any request on port 80 is automatically redirected to port 443.
 
 ## TLS
 
-cert-manager issues a wildcard certificate (`*.neustrom.net`) via Let's Encrypt with a Cloudflare DNS-01 challenge. The certificate is stored as a Secret in the `traefik` namespace.
+cert-manager issues a wildcard certificate (`*.neustrom.net`) via Let's Encrypt with a Cloudflare
+DNS-01 challenge. The certificate is stored as a Secret in the `traefik` namespace.
 
-Traefik's `TLSStore/default` references this secret, so all services get HTTPS automatically. Route resources (HTTPRoute, Ingress, IngressRoute) do **not** need a `tls:` block or any cert-manager annotation.
+Traefik's `TLSStore/default` references this secret, so all services get HTTPS automatically. Route resources
+(HTTPRoute, Ingress, IngressRoute) do **not** need a `tls:` block or any cert-manager annotation.
 
 ## Routing
 
@@ -61,4 +67,5 @@ spec:
 ```
 
 !!! note
-    Always include `group`/`kind` on both `parentRefs` and `backendRefs` and `weight` on `backendRefs`. Omitting them causes ArgoCD sync loops because Traefik fills in the defaults and ArgoCD detects drift.
+    Always include `group`/`kind` on both `parentRefs` and `backendRefs` and `weight` on `backendRefs`.
+    Omitting them causes ArgoCD sync loops because Traefik fills in the defaults and ArgoCD detects drift.
