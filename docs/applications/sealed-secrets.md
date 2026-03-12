@@ -27,9 +27,9 @@ When you need to add a new secret:
 
 ```mermaid
 graph LR
-    A[".env file\n(local only)"] -->|mise run seal-secret| B["SealedSecret YAML\n(safe to commit)"]
-    B -->|git push + ArgoCD sync| C["Sealed Secrets controller\ndecrypts it"]
-    C --> D["Secret\n(inside cluster only)"]
+    A[".env file<br>(local only)"] -->|mise run seal-secret| B["SealedSecret YAML<br>(safe to commit)"]
+    B -->|git push + ArgoCD sync| C["Sealed Secrets controller<br>decrypts it"]
+    C --> D["Secret<br>(inside cluster only)"]
 ```
 
 ## On cluster re-install

@@ -4,13 +4,13 @@
 
 ```mermaid
 graph TD
-    A["Certificate CR\n(kube-system)"] -->|triggers| B["cert-manager\n(cert-manager ns)"]
-    B -->|DNS-01 via| C["Cloudflare API\n(cloudflare-api-token secret)"]
+    A["Certificate CR<br>(kube-system)"] -->|triggers| B["cert-manager<br>(cert-manager ns)"]
+    B -->|DNS-01 via| C["Cloudflare API<br>(cloudflare-api-token secret)"]
     C -->|TXT record| D["Let's Encrypt ACME"]
     D -->|issues cert| B
-    B -->|stores| E["Secret: neustrom-net-wildcard-tls\n(kube-system)"]
-    E -->|referenced by| F["TLSStore/default\n(kube-system)"]
-    F -->|used by| G["Traefik\n(kube-system)"]
+    B -->|stores| E["Secret: neustrom-net-wildcard-tls<br>(kube-system)"]
+    E -->|referenced by| F["TLSStore/default<br>(kube-system)"]
+    F -->|used by| G["Traefik<br>(kube-system)"]
     G -->|terminates TLS for| H["All ingresses"]
 ```
 
@@ -81,19 +81,16 @@ For network-wide access without editing every device's hosts file, add real A re
 
 ## Ingress configuration
 
-Because TLS is terminated globally via `TLSStore/default`, ingresses only need a `tls` block with the hostname — no `secretName`, no cert-manager annotations:
+Because TLS is terminated globally via `TLSStore/default`, ingresses need **no** `tls:` block and **no** cert-manager annotations. Just specify the hostname:
 
 ```yaml
 spec:
-  tls:
-    - hosts:
-        - myservice.neustrom.net
   rules:
     - host: myservice.neustrom.net
       ...
 ```
 
-cert-manager annotations (`cert-manager.io/cluster-issuer`) are **not** needed and should not be added — they would trigger per-ingress certificate issuance, creating redundant certs.
+Traefik picks up `TLSStore/default` automatically for all HTTPS traffic. Adding cert-manager annotations (`cert-manager.io/cluster-issuer`) would trigger per-ingress certificate issuance and create redundant certs — do not add them.
 
 ## Cluster re-install / migration to RPi
 

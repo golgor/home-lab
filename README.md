@@ -17,10 +17,10 @@ graph TD
     subgraph Cluster["k3s Cluster"]
         direction TB
         ARGO[ArgoCD]
-        TF[Traefik\ningress + TLS]
-        CM[cert-manager\nLet's Encrypt]
+        TF[Traefik<br>ingress + TLS]
+        CM[cert-manager<br>Let's Encrypt]
         SS[Sealed Secrets]
-        APPS[Applications\nn8n · etc.]
+        APPS[Applications<br>n8n · etc.]
     end
 
     subgraph Internet
