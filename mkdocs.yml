@@ -1,7 +1,8 @@
+---
 # Project information
 site_name: Home-lab
 site_url: http://home-lab.local
-site_author: Robert Nyström 
+site_author: Robert Nyström
 site_description: Documentation covering my Home-lab setup based on k3s.
 
 # Repository

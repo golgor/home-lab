@@ -1,3 +1,4 @@
+---
 # ArgoCD Helm values — minimal single-cluster home-lab setup
 
 # Disable HA (not needed for home lab)
