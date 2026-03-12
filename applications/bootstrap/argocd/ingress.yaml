@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: argocd.home-lab.local
+    - host: argocd.neustrom.net
       http:
         paths:
           - path: /
@@ -19,6 +19,3 @@ spec:
                 name: argocd-server
                 port:
                   number: 80
-  tls:
-    - hosts:
-        - argocd.home-lab.local

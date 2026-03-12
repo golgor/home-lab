@@ -65,5 +65,5 @@ On cluster re-install: run `mise run fetch-cert` first, then re-seal all secrets
 
 - **ArgoCD bootstrap is manual** — changes to `applications/bootstrap/argocd/` must be re-applied with kubectl, not pushed and waited on
 - **Sealed Secrets CRD**: kustomize's `helm template` skips `crds/` — fixed with `includeCRDs: true` in the helmCharts entry
-- **TLS is wildcard**: cert-manager issues `*.neustrom.net` stored in `kube-system`. Traefik's `TLSStore/default` serves it globally — no per-ingress TLS config needed
+- **TLS is wildcard**: cert-manager issues `*.neustrom.net` stored in `kube-system`. Traefik's `TLSStore/default` serves it globally — no `tls:` block or cert-manager annotations needed on ingresses
 - **kubeseal controller**: named `sealed-secrets` (not `sealed-secrets-controller`) in namespace `sealed-secrets`
