@@ -32,7 +32,9 @@ gateway:
       namespacePolicy:
         from: All
       certificateRefs:
-        - name: neustrom-net-wildcard-tls
+        - group: ""
+          kind: Secret
+          name: neustrom-net-wildcard-tls
           namespace: traefik
 
 gatewayClass:
