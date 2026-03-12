@@ -4,8 +4,6 @@ kind: Kustomization
 namespace: traefik
 
 resources:
-  # Gateway API CRDs (GatewayClass, Gateway, HTTPRoute, etc.) — not part of Traefik chart
-  - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
   - dashboard-ingressroute.yaml
   - certificate.yaml
   - tlsstore.yaml
