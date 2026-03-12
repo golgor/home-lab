@@ -1,9 +1,19 @@
 [tools]
-kubectl   = "1.35.2"
-yamllint  = "latest"
-kubeseal  = "0.35.0"
-helm      = "4.1.1"
-uv        = "0.10.9"
+kubectl      = "1.35.2"
+yamllint     = "latest"
+kubeconform  = "latest"
+kubeseal     = "0.35.0"
+helm         = "4.1.1"
+uv           = "0.10.9"
+
+[tasks.lint]
+description = "Lint YAML files and validate Kubernetes manifests"
+run = """
+yamllint applications/
+kubeconform -strict -ignore-missing-schemas -summary -ignore-filename-pattern 'values\\.yaml' applications/
+uvx check-jsonschema --schemafile https://raw.githubusercontent.com/traefik/traefik-helm-chart/master/traefik/values.schema.json applications/vendor/traefik/values.yaml
+uvx check-jsonschema --schemafile https://raw.githubusercontent.com/cert-manager/cert-manager/master/deploy/charts/cert-manager/values.schema.json applications/vendor/cert-manager/values.yaml
+"""
 
 [tasks.docs]
 description = "Serve MkDocs documentation with live reload"
