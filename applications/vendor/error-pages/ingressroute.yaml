@@ -1,0 +1,25 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: rewrite-to-404
+spec:
+  replacePath:
+    path: /404.html
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: catch-all
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: PathPrefix(`/`)
+      kind: Rule
+      priority: 1
+      middlewares:
+        - name: rewrite-to-404
+          namespace: error-pages
+      services:
+        - name: error-pages
+          port: 8080
