@@ -14,6 +14,7 @@ providers:
       enabled: true
   kubernetesCRD:
     enabled: true
+    allowCrossNamespace: true
   kubernetesGateway:
     enabled: true
 
