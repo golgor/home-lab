@@ -78,6 +78,10 @@ ports:
       middlewares:
         - "traefik-default-errors@kubernetescrd"
 
+accessLog:
+  filters:
+    statusCodes: ["400-599"]
+
 resources:
   requests:
     cpu: "100m"
