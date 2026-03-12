@@ -1,0 +1,82 @@
+deployment:
+  replicas: 1
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+  name: "traefik"
+
+providers:
+  kubernetesIngress:
+    enabled: true
+    ingressClass: "traefik"
+    publishedService:
+      enabled: true
+  kubernetesCRD:
+    enabled: true
+  kubernetesGateway:
+    enabled: true
+
+gateway:
+  enabled: true
+  namespacePolicy: All
+  listeners:
+    web:
+      port: 8000
+      protocol: HTTP
+      namespacePolicy:
+        from: All
+    websecure:
+      port: 8443
+      protocol: HTTPS
+      namespacePolicy:
+        from: All
+      certificateRefs:
+        - name: neustrom-net-wildcard-tls
+          namespace: traefik
+
+gatewayClass:
+  enabled: true
+
+service:
+  type: LoadBalancer
+
+api:
+  dashboard: true
+  insecure: true
+
+# Dashboard IngressRoute managed separately in dashboard-ingressroute.yaml
+ingressRoute:
+  dashboard:
+    enabled: false
+
+ports:
+  traefik:
+    port: 9000
+    expose:
+      default: false
+    protocol: TCP
+  web:
+    port: 8000
+    exposedPort: 80
+    protocol: TCP
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    port: 8443
+    exposedPort: 443
+    protocol: TCP
+    http:
+      tls:
+        enabled: true
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
