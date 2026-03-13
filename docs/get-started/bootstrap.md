@@ -84,10 +84,10 @@ external PostgreSQL instance at a stable in-cluster address
 kubectl apply -k applications/bootstrap/postgres/
 ```
 
-!!! warning "Update the endpoint IP first"
-    Edit `applications/bootstrap/postgres/endpointslice.yaml` and replace
-    `192.168.1.x` with the actual IP of the host running PostgreSQL.
-    When migrating to Proxmox, update this to the LXC container's IP.
+!!! warning "Verify the endpoint IP"
+    The EndpointSlice in `applications/bootstrap/postgres/endpointslice.yaml`
+    must point to the host running PostgreSQL. Update the IP if it has
+    changed (e.g. new DHCP lease, migrating to Proxmox LXC).
 
 !!! tip "Use the host's LAN IP, not `127.0.0.1`"
     From inside a pod, `127.0.0.1` refers to the pod itself — not the
