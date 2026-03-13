@@ -118,6 +118,7 @@ nav:
     - Repository Structure: concepts/repo-structure.md
     - Kustomize & Helm: concepts/kustomize-helm.md
     - Certificates & HTTPS: concepts/certificates-https.md
+    - Database Connections: concepts/database-connections.md
   - Applications:
     - Overview: applications/index.md
     - ArgoCD: applications/argocd.md
@@ -141,3 +142,4 @@ nav:
   - Reference:
     - Commands: reference/commands.md
     - Certificates: reference/certificates.md
+    - Pulumi: reference/pulumi.md
