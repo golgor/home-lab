@@ -49,18 +49,103 @@ The `__main__.py` file imports and instantiates components:
 
 ```python
 from postgres import Postgres
+from postgresql_config import PostgresqlConfig, PostgresqlServiceAccount, PostgresqlUser
 
 postgres = Postgres("postgres")
+
+pg_config = PostgresqlConfig(
+    "postgresql-config",
+    host=postgres.host,
+    port=postgres.port,
+    superuser=postgres.username,
+    superuser_password=postgres.password,
+    opts=pulumi.ResourceOptions(depends_on=[postgres]),
+)
+
+human_users = [
+    PostgresqlUser("robert", role="readwrite", pg_config=pg_config),
+    PostgresqlUser("anna", role="readonly", pg_config=pg_config),
+]
+
+service_accounts = [
+    PostgresqlServiceAccount(name, pg_config=pg_config) for name in ["authentik"]
+]
 ```
 
 `pulumi up` then shows a tree like:
 
 ```text
-+ homelab:infrastructure:Postgres  postgres
-  + docker:index:Network           postgres-net
-  + docker:index:Volume            postgres-data
-  + docker:index:Container         postgres
++ homelab:infrastructure:Postgres              postgres
+  + docker:index:Network                       postgres-net
+  + docker:index:Volume                        postgres-data
+  + docker:index:Container                     postgres
++ homelab:infrastructure:PostgresqlConfig      postgresql-config
+  + postgresql:index:Role                      readonly
+  + postgresql:index:Role                      readwrite
++ homelab:infrastructure:PostgresqlUser        robert
++ homelab:infrastructure:PostgresqlUser        anna
++ homelab:infrastructure:PostgresqlServiceAccount  authentik
+  + postgresql:index:Database                  authentik
+  + postgresql:index:Grant                     authentik-ro-connect
+  ...
 ```
+
+## Database management
+
+The `postgresql_config` package manages everything inside PostgreSQL:
+roles, human users, service accounts, databases, and grants. It uses
+three component classes:
+
+- **`PostgresqlConfig`** — creates the PostgreSQL provider and two
+  shared roles (`readonly`, `readwrite`).
+- **`PostgresqlUser`** — a human user with a generated password and
+  membership in one of the shared roles.
+- **`PostgresqlServiceAccount`** — an application user with its own
+  database (owned by the user) and grants/default privileges for both
+  shared roles.
+
+### Adding a new service account
+
+Append the name to the list in `__main__.py`:
+
+```python
+service_accounts = [
+    PostgresqlServiceAccount(name, pg_config=pg_config)
+    for name in ["authentik", "grafana"]  # add here
+]
+```
+
+This creates the `grafana` user, `grafana` database, and all
+grants/default privileges automatically.
+
+### Adding a new human user
+
+```python
+human_users = [
+    PostgresqlUser("robert", role="readwrite", pg_config=pg_config),
+    PostgresqlUser("anna", role="readonly", pg_config=pg_config),
+    PostgresqlUser("erik", role="readonly", pg_config=pg_config),  # new
+]
+```
+
+### Retrieving passwords
+
+Passwords are auto-generated and stored in Pulumi state:
+
+```bash
+pulumi stack output --show-secrets authentik_password
+pulumi stack output --show-secrets robert_password
+```
+
+### Gotchas
+
+- Grants are chained sequentially (`depends_on`) to avoid PostgreSQL
+  catalog concurrency errors during `pulumi up`.
+- `DefaultPrivileges` are scoped per owner — they only apply to objects
+  created by the service account user, not by the superuser.
+- The `PostgresqlConfig` depends on the `Postgres` container
+  (`depends_on=[postgres]`), and the container uses `wait=True` to
+  ensure PostgreSQL is accepting connections before grants are attempted.
 
 ## Adding a new component
 

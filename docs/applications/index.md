@@ -7,4 +7,5 @@ This home lab runs a small set of carefully chosen applications. Each one earns 
 | ArgoCD | Bootstrap | `argocd` | [argocd.neustrom.net](https://argocd.neustrom.net) |
 | Sealed Secrets | Vendor | `sealed-secrets` | — |
 | cert-manager | Vendor | `cert-manager` | — |
-| Traefik | Built-in (k3s) | `kube-system` | — |
+| Traefik | Vendor | `traefik` | [traefik.neustrom.net](https://traefik.neustrom.net) |
+| Authentik | Vendor | `authentik` | [auth.neustrom.net](https://auth.neustrom.net) |

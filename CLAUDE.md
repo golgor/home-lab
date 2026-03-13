@@ -13,9 +13,11 @@ Mono-repo for home lab infrastructure based on k3s.
     - `sealed-secrets/` - Bitnami Sealed Secrets
     - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
     - `traefik-certs/` - Wildcard Certificate + TLSStore for Traefik default TLS
+    - `authentik/` - Authentik identity provider (SSO, forward-auth)
   - `custom/` - Self-developed apps (separate repos, images on GitHub)
 - `infrastructure/` - Single Pulumi project (Python/uv), one ComponentResource package per component
   - `postgres/` - PostgreSQL Docker container
+  - `postgresql_config/` - Database management (roles, users, service accounts, grants)
 - `docs/` - MkDocs Material documentation site
 
 ## Commands
@@ -85,3 +87,8 @@ On cluster re-install: run `mise run fetch-cert` first, then re-seal all secrets
 - **Sealed Secrets CRD**: kustomize's `helm template` skips `crds/` — fixed with `includeCRDs: true` in the helmCharts entry
 - **TLS is wildcard**: cert-manager issues `*.neustrom.net` stored in `kube-system`. Traefik's `TLSStore/default` serves it globally — no `tls:` block or cert-manager annotations needed on ingresses
 - **kubeseal controller**: named `sealed-secrets` (not `sealed-secrets-controller`) in namespace `sealed-secrets`
+- **Pulumi `depends_on`**: `PostgresqlConfig` must depend on the `Postgres` container to avoid connection failures during container replacements. Docker `wait=True` + `wait_timeout=30` ensures the container is healthy before downstream resources connect.
+- **Pulumi grant concurrency**: PostgreSQL catalog errors (`tuple concurrently updated`) when grants run in parallel — all grants within a service account are chained sequentially via `depends_on`
+- **Pulumi Docker log drift**: explicitly set `log_driver="json-file"` and `log_opts` to match Docker daemon defaults, otherwise Pulumi sees a diff and replaces the container on every `pulumi up`
+- **Pulumi state is local**: stored in `~/.pulumi/`, not backed up automatically. Losing state means manual `pulumi import` or recreate from scratch.
+- **Database SSL**: both Pulumi and workload connections currently use `sslmode=disable` (localhost Docker). `PostgresqlConfig` defaults to `require` — the call site overrides to `disable`. When PostgreSQL moves off-host, remove the override and update workload configs separately.

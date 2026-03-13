@@ -118,12 +118,14 @@ nav:
     - Repository Structure: concepts/repo-structure.md
     - Kustomize & Helm: concepts/kustomize-helm.md
     - Certificates & HTTPS: concepts/certificates-https.md
+    - Database Connections: concepts/database-connections.md
   - Applications:
     - Overview: applications/index.md
     - ArgoCD: applications/argocd.md
     - Sealed Secrets: applications/sealed-secrets.md
     - cert-manager: applications/cert-manager.md
     - Traefik: applications/traefik.md
+    - Authentik: applications/authentik.md
   - Guides:
     - Adding a Vendor App: guides/vendor.md
     - Adding a Custom App: guides/custom.md
@@ -132,6 +134,7 @@ nav:
       - Stacks: guides/pulumi/stacks.md
       - Config & Secrets: guides/pulumi/config.md
       - Adding a Component: guides/pulumi/components.md
+      - Database Management: guides/pulumi/database.md
   - Operations:
     - Upgrading: operations/upgrading.md
     - Backups: operations/backups.md
@@ -139,3 +142,4 @@ nav:
   - Reference:
     - Commands: reference/commands.md
     - Certificates: reference/certificates.md
+    - Pulumi: reference/pulumi.md
