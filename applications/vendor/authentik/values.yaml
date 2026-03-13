@@ -1,0 +1,22 @@
+---
+serviceAccount:
+  create: false
+
+postgresql:
+  enabled: false
+
+global:
+  envFrom:
+    - configMapRef:
+        name: authentik-config
+  env:
+    - name: AUTHENTIK_POSTGRESQL__PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: authentik-application-secrets
+          key: POSTGRES_PASSWORD
+    - name: AUTHENTIK_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: authentik-application-secrets
+          key: SECRET_KEY

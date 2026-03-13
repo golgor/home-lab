@@ -1,0 +1,28 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: authentik
+
+commonAnnotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+
+resources:
+  - httproute.yaml
+  - middleware.yaml
+  - application-secrets-sealedsecret.yaml
+
+configMapGenerator:
+  - name: authentik-config
+    envs:
+      - config.properties
+    options:
+      disableNameSuffixHash: true
+
+helmCharts:
+  - name: authentik
+    repo: https://charts.goauthentik.io
+    releaseName: authentik
+    namespace: authentik
+    valuesFile: values.yaml
+    version: 2026.2.1
