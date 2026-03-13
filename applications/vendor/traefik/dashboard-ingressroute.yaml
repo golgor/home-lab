@@ -10,6 +10,9 @@ spec:
   routes:
     - match: Host(`traefik.neustrom.net`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
       kind: Rule
+      middlewares:
+        - name: authentik-forwardauth
+          namespace: authentik
       services:
         - name: api@internal
           kind: TraefikService
