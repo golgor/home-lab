@@ -4,6 +4,19 @@ import pulumi
 import pulumi_postgresql as postgresql
 import pulumi_random as random
 
+_VALID_ROLES = ("readonly", "readwrite")
+
+
+def _generate_password(
+    name: str, opts: pulumi.ResourceOptions | None = None
+) -> random.RandomPassword:
+    return random.RandomPassword(
+        f"{name}-password",
+        length=32,
+        special=False,
+        opts=opts,
+    )
+
 
 class PostgresqlConfig(pulumi.ComponentResource):
     """Sets up the PostgreSQL provider and shared readonly/readwrite roles."""
@@ -19,6 +32,7 @@ class PostgresqlConfig(pulumi.ComponentResource):
         port: int,
         superuser: str,
         superuser_password: pulumi.Output[str],
+        sslmode: str = "require",
         opts: pulumi.ResourceOptions | None = None,
     ):
         super().__init__("homelab:infrastructure:PostgresqlConfig", name, None, opts)
@@ -31,7 +45,7 @@ class PostgresqlConfig(pulumi.ComponentResource):
             port=port,
             username=superuser,
             password=superuser_password,
-            sslmode="disable",
+            sslmode=sslmode,
             opts=child_opts,
         )
 
@@ -69,16 +83,14 @@ class PostgresqlUser(pulumi.ComponentResource):
     ):
         super().__init__("homelab:infrastructure:PostgresqlUser", username, None, opts)
 
+        if role not in _VALID_ROLES:
+            raise ValueError(f"role must be one of {_VALID_ROLES}, got {role!r}")
+
         self.username = username
         child_opts = pulumi.ResourceOptions(parent=self)
         pg_opts = pulumi.ResourceOptions(parent=self, provider=pg_config.provider)
 
-        pw = random.RandomPassword(
-            f"{username}-password",
-            length=32,
-            special=False,
-            opts=child_opts,
-        )
+        pw = _generate_password(username, opts=child_opts)
 
         parent_role = (
             pg_config.readonly_role if role == "readonly" else pg_config.readwrite_role
@@ -118,12 +130,7 @@ class PostgresqlServiceAccount(pulumi.ComponentResource):
         child_opts = pulumi.ResourceOptions(parent=self)
         pg_opts = pulumi.ResourceOptions(parent=self, provider=pg_config.provider)
 
-        pw = random.RandomPassword(
-            f"{name}-password",
-            length=32,
-            special=False,
-            opts=child_opts,
-        )
+        pw = _generate_password(name, opts=child_opts)
 
         user = postgresql.Role(
             name,
