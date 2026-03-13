@@ -129,6 +129,7 @@ nav:
   - Guides:
     - Adding a Vendor App: guides/vendor.md
     - Adding a Custom App: guides/custom.md
+    - Authentik Forward Auth: guides/authentik.md
     - Pulumi:
       - Overview: guides/pulumi/overview.md
       - Stacks: guides/pulumi/stacks.md

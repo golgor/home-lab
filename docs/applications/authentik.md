@@ -31,7 +31,8 @@ flowchart LR
 - **Forward-auth middleware** is a Traefik middleware that intercepts
   requests to other apps, checks with Authentik whether the user is
   logged in, and either lets the request through or redirects to the
-  login page.
+  login page. A single **domain-level** provider covers all
+  `*.neustrom.net` apps — no per-app configuration needed in Authentik.
 
 ## Initial setup
 
@@ -52,3 +53,13 @@ After that, the admin interface is at
 | Helm chart | `authentik` from `charts.goauthentik.io` |
 | Database | `authentik` (dedicated, managed by Pulumi) |
 | Secrets | `authentik-application-secrets` (SealedSecret with DB password and secret key) |
+| Forward-auth | Domain-level provider covering `*.neustrom.net` |
+| Middleware | `authentik-forwardauth` in `authentik` namespace |
+
+## Protecting apps
+
+Any app can be protected by adding the forward-auth middleware to its
+route — one annotation for HTTPRoute, or a `middlewares` block for
+IngressRoute. See the
+[Configuring Authentik Forward Auth](../guides/authentik.md) guide for
+both syntaxes and full setup instructions.
