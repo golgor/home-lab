@@ -127,6 +127,11 @@ nav:
   - Guides:
     - Adding a Vendor App: guides/vendor.md
     - Adding a Custom App: guides/custom.md
+    - Pulumi:
+      - Overview: guides/pulumi/overview.md
+      - Stacks: guides/pulumi/stacks.md
+      - Config & Secrets: guides/pulumi/config.md
+      - Adding a Component: guides/pulumi/components.md
   - Operations:
     - Upgrading: operations/upgrading.md
     - Backups: operations/backups.md

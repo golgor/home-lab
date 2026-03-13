@@ -7,13 +7,15 @@ Mono-repo for home lab infrastructure based on k3s.
 - `ansible/` - Ansible playbooks for server provisioning
 - `applications/` - Application/service configurations
   - `bootstrap/argocd/` - ArgoCD (manually applied, not managed by ArgoCD)
+  - `bootstrap/postgres/` - Database Service + EndpointSlice (manually applied)
   - `vendor/` - Third-party apps managed by ArgoCD (App of Apps pattern)
     - `vendor-apps.yaml` - App of Apps, scans for `**/application.yaml`
     - `sealed-secrets/` - Bitnami Sealed Secrets
     - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
     - `traefik-certs/` - Wildcard Certificate + TLSStore for Traefik default TLS
   - `custom/` - Self-developed apps (separate repos, images on GitHub)
-- `infrastructure/` - Infrastructure definitions
+- `infrastructure/` - Single Pulumi project (Python/uv), one ComponentResource package per component
+  - `postgres/` - PostgreSQL Docker container
 - `docs/` - MkDocs Material documentation site
 
 ## Commands
@@ -34,6 +36,22 @@ kustomize build --enable-helm applications/bootstrap/argocd | kubectl apply --se
 
 # Apply App of Apps (ArgoCD then manages everything else)
 kubectl apply -f applications/vendor/vendor-apps.yaml
+
+# Apply database endpoint (update IP in endpointslice.yaml first)
+kubectl apply -k applications/bootstrap/postgres/
+```
+
+## Infrastructure (Pulumi)
+
+State is stored locally (`pulumi login --local`, stored in `~/.pulumi/`).
+
+```bash
+cd infrastructure
+pulumi login --local               # one-time: use local state backend
+pulumi stack init dev              # one-time: create a stack
+pulumi config set --secret postgres:password <pw>  # one-time: set secrets
+pulumi up                          # deploy
+pulumi destroy                     # tear down
 ```
 
 ## Secrets workflow

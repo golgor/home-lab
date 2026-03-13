@@ -1,0 +1,15 @@
+name: infrastructure
+runtime:
+  name: python
+  options:
+    toolchain: uv
+description: Home lab infrastructure managed via Pulumi
+config:
+  postgres:version:
+    value: "18"
+  postgres:port:
+    value: "5432"
+  postgres:database:
+    value: postgres
+  postgres:username:
+    value: postgres
