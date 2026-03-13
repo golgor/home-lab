@@ -13,9 +13,11 @@ Mono-repo for home lab infrastructure based on k3s.
     - `sealed-secrets/` - Bitnami Sealed Secrets
     - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
     - `traefik-certs/` - Wildcard Certificate + TLSStore for Traefik default TLS
+    - `authentik/` - Authentik identity provider (SSO, forward-auth)
   - `custom/` - Self-developed apps (separate repos, images on GitHub)
 - `infrastructure/` - Single Pulumi project (Python/uv), one ComponentResource package per component
   - `postgres/` - PostgreSQL Docker container
+  - `postgresql_config/` - Database management (roles, users, service accounts, grants)
 - `docs/` - MkDocs Material documentation site
 
 ## Commands
