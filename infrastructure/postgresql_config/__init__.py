@@ -141,72 +141,92 @@ class PostgresqlServiceAccount(pulumi.ComponentResource):
         )
 
         # Chain grants sequentially to avoid PostgreSQL catalog concurrency errors.
-        # Each grant depends on the previous one.
-        prev: pulumi.Resource = db
-
-        for grant_name, role, obj_type, schema, privileges in [
-            ("ro-connect", pg_config.readonly_role, "database", None, ["CONNECT"]),
-            ("ro-usage", pg_config.readonly_role, "schema", "public", ["USAGE"]),
-            ("rw-connect", pg_config.readwrite_role, "database", None, ["CONNECT"]),
-            (
-                "rw-usage",
-                pg_config.readwrite_role,
-                "schema",
-                "public",
-                ["USAGE", "CREATE"],
-            ),
-        ]:
-            kwargs = {
-                "role": role.name,
-                "database": db.name,
-                "object_type": obj_type,
-                "privileges": privileges,
-            }
-            if schema:
-                kwargs["schema"] = schema
-            grant = postgresql.Grant(
-                f"{name}-{grant_name}",
-                **kwargs,
-                opts=pulumi.ResourceOptions(
-                    parent=self, provider=pg_config.provider, depends_on=[prev]
-                ),
+        def _chain_opts(prev: pulumi.Resource) -> pulumi.ResourceOptions:
+            return pulumi.ResourceOptions(
+                parent=self, provider=pg_config.provider, depends_on=[prev]
             )
-            prev = grant
 
-        for grant_name, role, obj_type, privileges in [
-            ("ro-tables", pg_config.readonly_role, "table", ["SELECT"]),
-            (
-                "ro-sequences",
-                pg_config.readonly_role,
-                "sequence",
-                ["SELECT", "USAGE"],
-            ),
-            (
-                "rw-tables",
-                pg_config.readwrite_role,
-                "table",
-                ["SELECT", "INSERT", "UPDATE", "DELETE"],
-            ),
-            (
-                "rw-sequences",
-                pg_config.readwrite_role,
-                "sequence",
-                ["SELECT", "USAGE", "UPDATE"],
-            ),
-        ]:
-            default_priv = postgresql.DefaultPrivileges(
-                f"{name}-{grant_name}",
-                role=role.name,
-                database=db.name,
-                schema="public",
-                owner=user.name,
-                object_type=obj_type,
-                privileges=privileges,
-                opts=pulumi.ResourceOptions(
-                    parent=self, provider=pg_config.provider, depends_on=[prev]
-                ),
-            )
-            prev = default_priv
+        ro_connect = postgresql.Grant(
+            f"{name}-ro-connect",
+            role=pg_config.readonly_role.name,
+            database=db.name,
+            object_type="database",
+            privileges=["CONNECT"],
+            opts=_chain_opts(db),
+        )
+
+        ro_usage = postgresql.Grant(
+            f"{name}-ro-usage",
+            role=pg_config.readonly_role.name,
+            database=db.name,
+            schema="public",
+            object_type="schema",
+            privileges=["USAGE"],
+            opts=_chain_opts(ro_connect),
+        )
+
+        rw_connect = postgresql.Grant(
+            f"{name}-rw-connect",
+            role=pg_config.readwrite_role.name,
+            database=db.name,
+            object_type="database",
+            privileges=["CONNECT"],
+            opts=_chain_opts(ro_usage),
+        )
+
+        rw_usage = postgresql.Grant(
+            f"{name}-rw-usage",
+            role=pg_config.readwrite_role.name,
+            database=db.name,
+            schema="public",
+            object_type="schema",
+            privileges=["USAGE", "CREATE"],
+            opts=_chain_opts(rw_connect),
+        )
+
+        ro_tables = postgresql.DefaultPrivileges(
+            f"{name}-ro-tables",
+            role=pg_config.readonly_role.name,
+            database=db.name,
+            schema="public",
+            owner=user.name,
+            object_type="table",
+            privileges=["SELECT"],
+            opts=_chain_opts(rw_usage),
+        )
+
+        ro_sequences = postgresql.DefaultPrivileges(
+            f"{name}-ro-sequences",
+            role=pg_config.readonly_role.name,
+            database=db.name,
+            schema="public",
+            owner=user.name,
+            object_type="sequence",
+            privileges=["SELECT", "USAGE"],
+            opts=_chain_opts(ro_tables),
+        )
+
+        rw_tables = postgresql.DefaultPrivileges(
+            f"{name}-rw-tables",
+            role=pg_config.readwrite_role.name,
+            database=db.name,
+            schema="public",
+            owner=user.name,
+            object_type="table",
+            privileges=["SELECT", "INSERT", "UPDATE", "DELETE"],
+            opts=_chain_opts(ro_sequences),
+        )
+
+        postgresql.DefaultPrivileges(
+            f"{name}-rw-sequences",
+            role=pg_config.readwrite_role.name,
+            database=db.name,
+            schema="public",
+            owner=user.name,
+            object_type="sequence",
+            privileges=["SELECT", "USAGE", "UPDATE"],
+            opts=_chain_opts(rw_tables),
+        )
 
         self.password = pw.result
 
