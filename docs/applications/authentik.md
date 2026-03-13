@@ -33,6 +33,16 @@ flowchart LR
   logged in, and either lets the request through or redirects to the
   login page.
 
+## Initial setup
+
+On first deployment, navigate to
+[auth.neustrom.net/if/flow/initial-setup/](https://auth.neustrom.net/if/flow/initial-setup/)
+to create the `akadmin` admin account. This wizard is only available
+before the initial admin user is configured.
+
+After that, the admin interface is at
+[auth.neustrom.net/if/admin/](https://auth.neustrom.net/if/admin/).
+
 ## Key details
 
 | Key | Value |

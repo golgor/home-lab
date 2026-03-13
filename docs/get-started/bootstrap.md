@@ -164,3 +164,19 @@ flowchart LR
 
 - **Sealed Secrets** — encrypts secrets so they can be stored in Git
 - **cert-manager** — automated TLS certificates via Let's Encrypt (Cloudflare DNS challenge)
+- **Traefik** — ingress controller and reverse proxy with Gateway API support
+- **Authentik** — identity provider (SSO, forward-auth)
+
+## Step 5: Initial Authentik Setup
+
+Once ArgoCD has synced the Authentik app and pods are running, create the
+admin account:
+
+1. Open [https://auth.neustrom.net/if/flow/initial-setup/](https://auth.neustrom.net/if/flow/initial-setup/)
+2. Create the `akadmin` account and set a password
+3. The admin interface is then available at [https://auth.neustrom.net/if/admin/](https://auth.neustrom.net/if/admin/)
+
+!!! note "One-time only"
+    The initial setup wizard disappears after the admin account is
+    created. If you need to reset it, delete the Authentik database and
+    let the migrations run again.
