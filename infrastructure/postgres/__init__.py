@@ -10,6 +10,7 @@ class Postgres(pulumi.ComponentResource):
     port: int
     database: str
     username: str
+    password: pulumi.Output[str]
 
     def __init__(self, name: str, opts: pulumi.ResourceOptions | None = None):
         super().__init__("homelab:infrastructure:Postgres", name, None, opts)
@@ -19,7 +20,7 @@ class Postgres(pulumi.ComponentResource):
         self.port = config.get_int("port") or 5432
         self.database = config.get("database") or "postgres"
         self.username = config.get("username") or "postgres"
-        password = config.require_secret("password")
+        self.password = config.require_secret("password")
         self.host = "localhost"
 
         child_opts = pulumi.ResourceOptions(parent=self)
@@ -57,9 +58,12 @@ class Postgres(pulumi.ComponentResource):
             envs=[
                 pulumi.Output.concat("POSTGRES_DB=", self.database),
                 pulumi.Output.concat("POSTGRES_USER=", self.username),
-                pulumi.Output.concat("POSTGRES_PASSWORD=", password),
+                pulumi.Output.concat("POSTGRES_PASSWORD=", self.password),
             ],
+            log_driver="json-file",
             restart="unless-stopped",
+            wait=True,
+            wait_timeout=30,
             healthcheck=docker.ContainerHealthcheckArgs(
                 tests=["CMD-SHELL", f"pg_isready -U {self.username}"],
                 interval="10s",
