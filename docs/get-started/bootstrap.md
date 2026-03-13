@@ -89,6 +89,14 @@ kubectl apply -k applications/bootstrap/postgres/
     `192.168.1.x` with the actual IP of the host running PostgreSQL.
     When migrating to Proxmox, update this to the LXC container's IP.
 
+!!! tip "Use the host's LAN IP, not `127.0.0.1`"
+    From inside a pod, `127.0.0.1` refers to the pod itself — not the
+    host machine. Use your host's LAN IP instead (find it with
+    `ip -4 addr show | grep 'inet ' | grep -v 127.0.0.1`). Ignore
+    `172.x` (Docker bridges) and `10.42.x` (flannel/CNI) addresses — use
+    the one on your physical interface (e.g. `eth0`, `wlan0`). Consider
+    setting a static DHCP lease on your router so the IP doesn't change.
+
 Workloads connect using:
 
 | Key | Value |
