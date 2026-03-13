@@ -61,6 +61,7 @@ class Postgres(pulumi.ComponentResource):
                 pulumi.Output.concat("POSTGRES_PASSWORD=", self.password),
             ],
             log_driver="json-file",
+            log_opts={"max-file": "5", "max-size": "10m"},
             restart="unless-stopped",
             wait=True,
             wait_timeout=30,
