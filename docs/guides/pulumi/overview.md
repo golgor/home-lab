@@ -14,7 +14,9 @@ infrastructure/
   pyproject.toml       # Python dependencies
   __main__.py          # Entry point — imports and instantiates components
   postgres/
-    __init__.py        # Postgres ComponentResource
+    __init__.py        # Postgres Docker container ComponentResource
+  postgresql_config/
+    __init__.py        # Database management — roles, users, service accounts
 ```
 
 Pulumi discovers the project by looking for `Pulumi.yaml` in the current

@@ -124,6 +124,7 @@ nav:
     - Sealed Secrets: applications/sealed-secrets.md
     - cert-manager: applications/cert-manager.md
     - Traefik: applications/traefik.md
+    - Authentik: applications/authentik.md
   - Guides:
     - Adding a Vendor App: guides/vendor.md
     - Adding a Custom App: guides/custom.md
@@ -132,6 +133,7 @@ nav:
       - Stacks: guides/pulumi/stacks.md
       - Config & Secrets: guides/pulumi/config.md
       - Adding a Component: guides/pulumi/components.md
+      - Database Management: guides/pulumi/database.md
   - Operations:
     - Upgrading: operations/upgrading.md
     - Backups: operations/backups.md

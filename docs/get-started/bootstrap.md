@@ -66,7 +66,17 @@ pulumi up
 ```
 
 This starts a PostgreSQL 18 container via Docker, accessible on port 5432
-of the host machine.
+of the host machine. It also creates:
+
+- **Roles**: `readonly` (SELECT) and `readwrite` (full CRUD)
+- **Human users**: `robert` (readwrite) and `anna` (readonly)
+- **Service accounts**: `authentik` (with its own database)
+
+Passwords are auto-generated. Retrieve them with:
+
+```bash
+pulumi stack output --show-secrets authentik_password
+```
 
 !!! note "Data persists across `pulumi destroy`"
     The Docker volume uses `retain_on_delete=True`, so `pulumi destroy`
