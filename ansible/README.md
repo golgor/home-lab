@@ -8,16 +8,19 @@ Ansible connects to remote machines over SSH and runs commands on your behalf. N
 
 ## Inventory
 
-The `inventory.ini` file tells Ansible which machines to connect to and how.
+The `inventory.yaml` file tells Ansible which machines to connect to and how.
 
-```ini
-[myhosts]
-10.0.0.110 ansible_user=dietpi
+```yaml
+myhosts:
+  hosts:
+    dietpi:
+      ansible_host: 10.0.0.110
+      ansible_user: dietpi
 ```
 
-- `[myhosts]` — a group name, used to target multiple machines at once
-- `10.0.0.110` — the IP address of the remote machine
-- `ansible_user=dietpi` — the SSH user to log in as
+- `myhosts` — a group name, used to target multiple machines at once
+- `ansible_host` — the IP address of the remote machine
+- `ansible_user` — the SSH user to log in as
 
 ## SSH Key Authentication
 
@@ -63,7 +66,7 @@ ssh-keyscan -H 10.0.0.110 >> ~/.ssh/known_hosts
 Test that everything is working with a ping:
 
 ```bash
-uv run ansible myhosts -m ping -i inventory.ini
+uv run ansible myhosts -m ping -i inventory.yaml
 ```
 
 A successful response looks like:
@@ -73,3 +76,62 @@ A successful response looks like:
     "ping": "pong"
 }
 ```
+
+## Playbook
+
+The playbook (`playbook.yaml`) provisions the RPi as a combined k3s + PostgreSQL host. This is the main server for the home lab — it runs a k3s cluster for hosting applications, and a local PostgreSQL instance that those applications use as their database.
+
+Run it with:
+
+```bash
+uv run ansible-playbook -i inventory.yaml playbook.yaml
+```
+
+The playbook is idempotent — it is safe to run multiple times. Ansible checks the current state before making changes and only acts if something differs from what is described.
+
+### Play 1: Update and upgrade packages
+
+Runs `apt update && apt full-upgrade` to keep the system up to date. Equivalent to logging in and running it manually, but automated.
+
+### Play 2: Configure PostgreSQL
+
+PostgreSQL is installed on the RPi via DietPi and serves as the shared database for all applications running in k3s. Rather than each app managing its own database container, a single PostgreSQL instance on the host serves all of them. Database users and permissions are managed separately via Pulumi (see `infrastructure/`).
+
+By default, PostgreSQL only accepts connections from the same machine (localhost). Two changes are needed to allow k3s workloads to connect over the network:
+
+**1. Listen on all interfaces**
+
+PostgreSQL is configured to accept connections on all network interfaces, not just localhost. This is done by dropping a config file into `/etc/postgresql/17/main/conf.d/01ansible.conf`:
+
+```
+listen_addresses = '*'
+```
+
+DietPi stores its own PostgreSQL settings in `conf.d/00dietpi.conf`. Using a separate file (`01ansible.conf`) avoids editing DietPi-managed files directly and keeps our changes clearly separated.
+
+**2. Allow remote connections in `pg_hba.conf`**
+
+`pg_hba.conf` (Host-Based Authentication) is PostgreSQL's access control file — it defines who is allowed to connect and how they must authenticate. By default only local connections are permitted.
+
+The playbook appends a rule to allow any user on the local network (`10.0.0.0/24`) to connect using a password:
+
+```
+host    all    all    10.0.0.0/24    scram-sha-256
+```
+
+`scram-sha-256` is a secure password authentication method — credentials are never sent in plain text.
+
+PostgreSQL is restarted automatically if either of these files changed, but only then.
+
+> **Before running this play:** make sure you have set a password for the `postgres` superuser (or whichever user you intend to connect as), otherwise password authentication has nothing to verify against:
+> ```bash
+> ssh dietpi@10.0.0.110
+> sudo -u postgres psql
+> \password postgres
+> ```
+
+### Play 3: Configure k3s
+
+Copies `diet-pi/k3s-config.yaml` to `/etc/rancher/k3s/config.yaml` on the RPi. K3s reads this file on startup to configure the node. The config disables the built-in Traefik ingress controller (we deploy our own via ArgoCD) and sets the kubeconfig file permissions so it can be read without root.
+
+The `/etc/rancher/k3s/` directory is created if it does not already exist.
