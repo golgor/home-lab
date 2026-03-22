@@ -102,15 +102,31 @@ touching DietPi-managed config and makes the override explicit.
 
 #### Allow remote connections
 
-The following rule is appended to `pg_hba.conf`:
+The following rules are appended to `pg_hba.conf`:
 
 ```text
 host    all    all    10.0.0.0/24    scram-sha-256
+host    all    all    10.42.0.0/16   scram-sha-256
 ```
 
-This permits password-authenticated connections from any host on the local
-network. `scram-sha-256` hashes credentials in transit — passwords are never
-sent in plain text.
+Two CIDRs are needed:
+
+- `10.0.0.0/24` — local network, for admin tools and Pulumi connecting directly
+- `10.42.0.0/16` — k3s pod CIDR, for workloads connecting via the Kubernetes Service
+
+`scram-sha-256` hashes credentials in transit — passwords are never sent in
+plain text.
+
+PostgreSQL sees the **pod's IP** when a workload connects through a Kubernetes
+Service, not the node's IP. The local network CIDR alone is not enough.
+
+`10.42.0.0/16` is k3s's default pod CIDR. If you ever change `cluster-cidr` in
+the k3s config, update this to match. To check the actual pod CIDR on a running
+cluster:
+
+```bash
+kubectl get node -o jsonpath='{.items[*].spec.podCIDR}'
+```
 
 PostgreSQL is restarted automatically if either file changed, and only then.
 
