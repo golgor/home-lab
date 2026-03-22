@@ -31,7 +31,7 @@ provider to connect before PostgreSQL is accepting connections.
 PostgreSQL's system catalog does not handle concurrent DDL well. Running
 multiple `GRANT` statements in parallel on the same database causes:
 
-```
+```text
 tuple concurrently updated
 ```
 
