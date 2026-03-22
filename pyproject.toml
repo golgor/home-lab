@@ -3,6 +3,8 @@ name = "infrastructure"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "ansible>=13.4.0",
+    "ansible-inventory>=0.6.7",
     "pulumi>=3,<4",
     "pulumi-docker>=4,<5",
     "pulumi-postgresql>=3,<4",
