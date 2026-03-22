@@ -1,4 +1,4 @@
 encryptionsalt: v1:1ZoNMFzshyI=:v1:hiF444+Mf6nI2ONy:QD3GJK63ZVlIWw4LRBeiThd6qiMOfA==
 config:
   postgres:password:
-    secure: v1:/9m6BTIewcHDHVSG:2Wb0Z6X2JfGYzx5EwNuS5uG5Zjs2M4d9
+    secure: v1:WS+delmhln/9yhme:NBAikl1x6maJyyLBlQ2ZsL5G3CQGr8Es/w==

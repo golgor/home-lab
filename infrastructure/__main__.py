@@ -12,7 +12,6 @@ pg_config = PostgresqlConfig(
     superuser=postgres.username,
     superuser_password=postgres.password,
     sslmode="disable",
-    opts=pulumi.ResourceOptions(depends_on=[postgres]),
 )
 
 human_users = [
