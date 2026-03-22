@@ -1,0 +1,66 @@
+---
+- name: Update and upgrade packages
+  hosts: myhosts
+  become: true # run as sudo
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: true
+        upgrade: dist
+
+- name: Configure PostgreSQL
+  hosts: myhosts
+  become: true
+
+  tasks:
+    - name: Ensure PostgreSQL is running and enabled on boot
+      service:
+        name: postgresql
+        state: started
+        enabled: true
+
+    # DietPi uses conf.d/ for overrides — drop a file there instead of
+    # editing postgresql.conf directly, to avoid conflicts with 00dietpi.conf.
+    - name: Configure PostgreSQL to listen on all interfaces
+      copy:
+        dest: /etc/postgresql/17/main/conf.d/01ansible.conf
+        content: |
+          listen_addresses = '*'
+        mode: "0640"
+        owner: postgres
+        group: postgres
+      notify: Restart PostgreSQL
+
+    # Allow connections from the local network (10.0.0.0/24) using
+    # scram-sha-256 password auth. Adjust the CIDR if your network differs.
+    - name: Allow remote connections in pg_hba.conf
+      blockinfile:
+        path: /etc/postgresql/17/main/pg_hba.conf
+        block: |
+          host    all             all             10.0.0.0/24             scram-sha-256
+        backup: true
+      notify: Restart PostgreSQL
+
+  handlers:
+    - name: Restart PostgreSQL
+      service:
+        name: postgresql
+        state: restarted
+
+- name: Configure k3s
+  hosts: myhosts
+  become: true
+
+  tasks:
+    - name: Ensure k3s config directory exists
+      file:
+        path: /etc/rancher/k3s
+        state: directory
+        mode: "0755"
+
+    - name: Copy k3s config
+      copy:
+        src: ../diet-pi/k3s-config.yaml
+        dest: /etc/rancher/k3s/config.yaml
+        mode: "0644"

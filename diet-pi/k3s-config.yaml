@@ -1,0 +1,6 @@
+write-kubeconfig-mode: "644"
+kubelet-arg:
+  - "node-ip=0.0.0.0"
+disable:
+  - traefik
+
