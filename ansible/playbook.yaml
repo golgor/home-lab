@@ -32,13 +32,15 @@
         group: postgres
       notify: Restart PostgreSQL
 
-    # Allow connections from the local network (10.0.0.0/24) using
-    # scram-sha-256 password auth. Adjust the CIDR if your network differs.
+    # Allow connections from:
+    # - 10.0.0.0/24  — local network (admin tools, Pulumi)
+    # - 10.42.0.0/16 — k3s pod CIDR (workloads connecting via the Service)
     - name: Allow remote connections in pg_hba.conf
       blockinfile:
         path: /etc/postgresql/17/main/pg_hba.conf
         block: |
           host    all             all             10.0.0.0/24             scram-sha-256
+          host    all             all             10.42.0.0/16            scram-sha-256
         backup: true
       notify: Restart PostgreSQL
 
