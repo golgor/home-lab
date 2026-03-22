@@ -10,7 +10,7 @@ commonAnnotations:
 resources:
   - httproute.yaml
   - middleware.yaml
-  - application-secrets-sealedsecret.yaml
+  - authentik-application-secrets-sealedsecret.yaml
 
 configMapGenerator:
   - name: authentik-config
