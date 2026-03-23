@@ -1,0 +1,15 @@
+title: Home Lab
+theme: dark
+color: slate
+headerStyle: boxed
+layout:
+  Infrastructure:
+    style: row
+    columns: 4
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  showSearchSuggestions: true
+  hideVisitURL: true
+  provider: google
+disableIndexing: true

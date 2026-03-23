@@ -1,0 +1,51 @@
+- Calendar:
+    - Family:
+        icon: google-calendar.png
+        description: Family calendar
+        widget:
+          type: calendar
+          view: agenda
+          maxEvents: 10
+          showTime: true
+          previousDays: 3
+          integrations:
+            - type: ical
+              url: "{{HOMEPAGE_VAR_ICAL_FAMILY_CALENDAR_URL}}"
+              name: Family Calendar
+
+- Infrastructure:
+    - Authentik:
+        href: https://auth.neustrom.net
+        description: Identity provider & SSO
+        icon: authentik.png
+        namespace: authentik
+        app: authentik
+    - Traefik:
+        href: https://traefik.neustrom.net/dashboard/
+        description: Reverse proxy
+        icon: traefik.png
+        namespace: traefik
+        app: traefik
+        widget:
+          type: traefik
+          url: http://traefik.traefik.svc.cluster.local:9000
+          fields: ["routers", "services", "middleware"]
+    - Pi-hole:
+        href: https://pihole.neustrom.net/admin
+        description: DNS & ad blocking
+        icon: pi-hole.png
+        namespace: pihole
+        app: pihole
+    - ArgoCD:
+        href: https://argocd.neustrom.net
+        description: GitOps continuous delivery
+        icon: argo-cd.png
+    - Cert-manager:
+        description: TLS certificate management
+        icon: cert-manager.png
+        namespace: cert-manager
+        app: cert-manager
+    - Sealed Secrets:
+        description: Sealed secrets management
+        namespace: sealed-secrets
+        app: sealed-secrets
