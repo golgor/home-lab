@@ -11,6 +11,7 @@ spec:
     - match: Host(`pihole.neustrom.net`)
       kind: Rule
       middlewares:
+        - name: pihole-redirect-admin
         - name: authentik-forwardauth
           namespace: authentik
       services:

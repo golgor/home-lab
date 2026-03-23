@@ -8,6 +8,7 @@ DNS2: "8.8.8.8"
 
 extraEnvVars:
   FTLCONF_dns_listeningMode: "all"
+  FTLCONF_webserver_api_pwhash: ""
 
 serviceDns:
   type: LoadBalancer

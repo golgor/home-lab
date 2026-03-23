@@ -6,6 +6,7 @@ namespace: pihole
 
 resources:
   - ingressroute.yaml
+  - middleware-redirect.yaml
 
 helmCharts:
   - name: pihole
