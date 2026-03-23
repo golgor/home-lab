@@ -10,6 +10,10 @@ DNS2: "8.8.8.8"
 extraEnvVars:
   FTLCONF_dns_listeningMode: "all"
 
+dnsmasq:
+  customDnsEntries:
+    - address=/neustrom.net/10.0.0.110
+
 serviceDns:
   type: LoadBalancer
   mixedService: true  # single service for both UDP and TCP on port 53
