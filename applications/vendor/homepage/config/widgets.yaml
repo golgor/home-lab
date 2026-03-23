@@ -1,6 +1,10 @@
-- greeting:
-    text_size: xl
-    text: Welcome home
+- kubernetes:
+    cluster:
+      show: true
+      cpu: true
+      memory: true
+      showLabel: true
+      label: cluster
 
 - datetime:
     locale: at

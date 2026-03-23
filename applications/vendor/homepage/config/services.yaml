@@ -14,19 +14,6 @@
               name: Family Calendar
 
 - Infrastructure:
-    - Cluster:
-        widget:
-          type: kubernetes
-          cluster:
-            show: true
-            cpu: true
-            memory: true
-            showLabel: true
-          nodes:
-            show: true
-            cpu: true
-            memory: true
-            showLabel: true
     - Authentik:
         href: https://auth.neustrom.net
         description: Identity provider & SSO
