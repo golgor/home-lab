@@ -14,4 +14,4 @@
     - ArgoCD:
         href: https://argocd.neustrom.net
         description: GitOps continuous delivery
-        icon: argocd.png
+        icon: argo-cd.png
