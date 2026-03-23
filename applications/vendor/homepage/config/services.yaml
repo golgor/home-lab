@@ -1,3 +1,18 @@
+- Calendar:
+    - Family:
+        icon: google-calendar.png
+        description: Family calendar
+        widget:
+          type: calendar
+          view: agenda
+          maxEvents: 10
+          showTime: true
+          previousDays: 3
+          integrations:
+            - type: ical
+              url: "{{HOMEPAGE_VAR_ICAL_FAMILY_CALENDAR_URL}}"
+              name: Family Calendar
+
 - Infrastructure:
     - Authentik:
         href: https://auth.neustrom.net

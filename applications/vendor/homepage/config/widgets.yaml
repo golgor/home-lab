@@ -13,12 +13,3 @@
 - search:
     provider: duckduckgo
     target: _blank
-- calendar:
-    view: agenda
-    maxEvents: 10
-    showTime: true
-    previousDays: 3
-    integrations:
-      - type: ical
-        url: "{{HOMEPAGE_VAR_ICAL_FAMILY_CALENDAR_URL}}"
-        name: Family Calendar
