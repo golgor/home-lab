@@ -1,0 +1,36 @@
+replicaCount: 1
+
+admin:
+  existingSecret: "pihole-secret"
+  passwordKey: "ADMIN_PASSWORD"
+
+DNS1: "1.1.1.1"
+DNS2: "8.8.8.8"
+
+extraEnvVars:
+  FTLCONF_dns_listeningMode: "all"
+
+dnsmasq:
+  customDnsEntries:
+    - address=/neustrom.net/10.0.0.110
+
+serviceDns:
+  type: LoadBalancer
+  mixedService: true  # single service for both UDP and TCP on port 53
+  port: 53
+  externalTrafficPolicy: Local
+
+serviceWeb:
+  type: ClusterIP
+  http:
+    enabled: true
+    port: 80
+  https:
+    enabled: false
+
+persistentVolumeClaim:
+  enabled: true
+  storageClass: "local-path"
+  accessModes:
+    - ReadWriteOnce
+  size: "500Mi"

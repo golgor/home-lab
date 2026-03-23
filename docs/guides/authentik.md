@@ -68,6 +68,13 @@ Access is controlled by policy bindings on this application. By default,
 all authenticated users have access. To restrict access to specific
 users or groups, add policy bindings here.
 
+!!! info "Policy binding Order field"
+    The **Order** field controls the sequence in which bindings are evaluated
+    (lower = first). With a single binding, the value doesn't matter — use `0`.
+    If you add multiple bindings later, leave gaps (0, 10, 20) so you can insert
+    new ones without renumbering. Whether *any* or *all* bindings must pass is
+    controlled by the **Policy engine mode** setting on the application.
+
 ### 3. Verify the Outpost
 
 1. Go to Applications > Outposts
