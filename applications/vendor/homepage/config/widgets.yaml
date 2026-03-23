@@ -1,19 +1,6 @@
-- kubernetes:
-    cluster:
-      show: true
-      cpu: true
-      memory: true
-      showLabel: true
-      label: cluster
-    nodes:
-      show: true
-      cpu: true
-      memory: true
-      showLabel: true
-
-- search:
-    provider: duckduckgo
-    target: _blank
+- greeting:
+    text_size: xl
+    text: Welcome home
 
 - datetime:
     locale: at
