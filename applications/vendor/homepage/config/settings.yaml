@@ -1,6 +1,4 @@
 title: Home Lab
-allowed:
-  - neustrom.net
 theme: dark
 color: slate
 headerStyle: clean
