@@ -21,3 +21,12 @@
         href: https://argocd.neustrom.net
         description: GitOps continuous delivery
         icon: argo-cd.png
+    - Cert-manager:
+        description: TLS certificate management
+        icon: cert-manager.png
+        namespace: cert-manager
+        app: cert-manager
+    - Sealed Secrets:
+        description: Sealed secrets management
+        namespace: sealed-secrets
+        app: sealed-secrets
