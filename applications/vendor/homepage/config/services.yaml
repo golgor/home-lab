@@ -3,14 +3,20 @@
         href: https://auth.neustrom.net
         description: Identity provider & SSO
         icon: authentik.png
+        namespace: authentik
+        app: authentik
     - Traefik:
         href: https://traefik.neustrom.net/dashboard/
         description: Reverse proxy
         icon: traefik.png
+        namespace: traefik
+        app: traefik
     - Pi-hole:
         href: https://pihole.neustrom.net/admin
         description: DNS & ad blocking
         icon: pi-hole.png
+        namespace: pihole
+        app: pihole
     - ArgoCD:
         href: https://argocd.neustrom.net
         description: GitOps continuous delivery
