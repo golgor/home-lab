@@ -28,6 +28,7 @@ SSID=<your-home-ssid>
 DHCP=yes
 MulticastDNS=yes
 DNS=10.0.0.110
+Domains=~.
 
 [DHCPv4]
 UseDNS=no
@@ -36,10 +37,25 @@ RouteMetric=600
 [IPv6AcceptRA]
 UseDNS=no
 RouteMetric=600
+
+[DHCPv6]
+UseDNS=no
 ```
 
 Replace `<your-home-ssid>` with the exact network name and `10.0.0.110` with
 the PiHole service IP.
+
+### Why `Domains=~.` and three `UseDNS=no` entries
+
+`Domains=~.` tells systemd-resolved to route **all** DNS queries through PiHole,
+not just queries for `*.neustrom.net` subdomains. Without it, apex domain queries
+(e.g. `neustrom.net` itself) fall through to the global DNS which has no record
+for local addresses.
+
+The three `UseDNS=no` entries prevent the router from injecting its own DNS
+server via DHCPv4, DHCPv6, or IPv6 Router Advertisements. Without all three,
+the router's IPv6 link-local address gets added to the DNS server list and
+systemd-resolved may select it over PiHole, breaking local resolution entirely.
 
 ## Apply
 
@@ -53,5 +69,10 @@ sudo networkctl reload
 resolvectl status wlan0
 ```
 
-`Current DNS Server` should show the PiHole IP when connected to the home
-network, and revert to the network-provided DNS on any other network.
+The output should show:
+
+- `Current DNS Server: 10.0.0.110` — and only that, no router IPv6 address
+- `DNS Domain: ~.`
+- `Default Route: yes`
+
+`Current DNS Server` reverts to the network-provided DNS on any other network.
