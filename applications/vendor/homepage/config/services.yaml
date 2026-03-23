@@ -26,6 +26,10 @@
         icon: traefik.png
         namespace: traefik
         app: traefik
+        widget:
+          type: traefik
+          url: http://traefik.traefik.svc.cluster.local:9000
+          fields: ["routers", "services", "middleware"]
     - Pi-hole:
         href: https://pihole.neustrom.net/admin
         description: DNS & ad blocking
