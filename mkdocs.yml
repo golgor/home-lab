@@ -132,6 +132,7 @@ nav:
     - Authentik Forward Auth: guides/authentik.md
     - Ansible: guides/ansible.md
     - Remote kubectl Access: guides/k3s-remote-access.md
+    - Per-Network DNS: guides/per-network-dns.md
     - Pulumi:
       - Overview: guides/pulumi/overview.md
       - Stacks: guides/pulumi/stacks.md
