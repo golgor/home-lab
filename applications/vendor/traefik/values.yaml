@@ -65,6 +65,7 @@ ports:
     exposedPort: 80
     protocol: TCP
     http:
+      sanitizePath: true
       redirections:
         entryPoint:
           to: websecure
@@ -74,6 +75,7 @@ ports:
     exposedPort: 443
     protocol: TCP
     http:
+      sanitizePath: true
       tls:
         enabled: true
       middlewares:
