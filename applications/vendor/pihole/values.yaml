@@ -1,14 +1,14 @@
 replicaCount: 1
 
-# Disable Pi-hole's built-in auth — protected by Authentik forward-auth instead
-adminPassword: ""
+admin:
+  existingSecret: "pihole-secret"
+  passwordKey: "ADMIN_PASSWORD"
 
 DNS1: "1.1.1.1"
 DNS2: "8.8.8.8"
 
 extraEnvVars:
   FTLCONF_dns_listeningMode: "all"
-  FTLCONF_webserver_api_pwhash: ""
 
 serviceDns:
   type: LoadBalancer
