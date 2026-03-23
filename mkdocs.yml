@@ -126,6 +126,7 @@ nav:
     - cert-manager: applications/cert-manager.md
     - Traefik: applications/traefik.md
     - Authentik: applications/authentik.md
+    - Homepage: applications/homepage.md
   - Guides:
     - Adding a Vendor App: guides/vendor.md
     - Adding a Custom App: guides/custom.md
