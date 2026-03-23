@@ -10,6 +10,14 @@
       cpu: true
       memory: true
       showLabel: true
+
 - search:
     provider: duckduckgo
     target: _blank
+
+- datetime:
+    locale: at
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: long
