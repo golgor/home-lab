@@ -1,0 +1,31 @@
+replicaCount: 1
+
+# Disable Pi-hole's built-in auth — protected by Authentik forward-auth instead
+adminPassword: ""
+
+DNS1: "1.1.1.1"
+DNS2: "8.8.8.8"
+
+extraEnvVars:
+  FTLCONF_dns_listeningMode: "all"
+
+serviceDns:
+  type: LoadBalancer
+  mixedService: true  # single service for both UDP and TCP on port 53
+  port: 53
+  externalTrafficPolicy: Local
+
+serviceWeb:
+  type: ClusterIP
+  http:
+    enabled: true
+    port: 80
+  https:
+    enabled: false
+
+persistentVolumeClaim:
+  enabled: true
+  storageClass: "local-path"
+  accessModes:
+    - ReadWriteOnce
+  size: "500Mi"

@@ -1,0 +1,18 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pihole
+  namespace: pihole
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`pihole.neustrom.net`)
+      kind: Rule
+      middlewares:
+        - name: authentik-forwardauth
+          namespace: authentik
+      services:
+        - name: pihole-web
+          port: 80
