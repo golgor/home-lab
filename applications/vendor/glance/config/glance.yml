@@ -92,8 +92,10 @@ pages:
             sites:
               - title: Pi-hole
                 url: https://pihole.neustrom.net
-                check-url: http://pihole-web.pihole.svc.cluster.local
+                check-url: http://pihole-web.pihole.svc.cluster.local/api/info/version
                 icon: si:pihole
+                alt-status-codes:
+                  - 403
               - title: ArgoCD
                 url: https://argocd.neustrom.net
                 check-url: http://argocd-server.argocd.svc.cluster.local
