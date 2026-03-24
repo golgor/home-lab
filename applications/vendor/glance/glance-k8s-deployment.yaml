@@ -17,6 +17,6 @@ spec:
       serviceAccountName: glance-k8s
       containers:
         - name: glance-k8s
-          image: ghcr.io/lukasdietrich/glance-k8s:v0.4.7
+          image: ghcr.io/lukasdietrich/glance-k8s/glance-k8s:v0.4.7
           ports:
             - containerPort: 8080
