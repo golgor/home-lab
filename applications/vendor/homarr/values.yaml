@@ -2,13 +2,13 @@
 database:
   type: postgresql
 
-dbCredentials:
-  existingSecret: "homarr-db-secret"
-  dbUrlKey: "DB_URL"
-
-dbEncryption:
-  existingSecret: "homarr-db-encryption"
-  key: "DB_ENCRYPTION_KEY"
+envSecrets:
+  dbCredentials:
+    existingSecret: "homarr-db-secret"
+    dbUrlKey: "DB_URL"
+  dbEncryption:
+    existingSecret: "homarr-db-encryption"
+    key: "DB_ENCRYPTION_KEY"
 
 env:
   TZ: "Europe/Stockholm"
