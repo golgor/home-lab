@@ -1,0 +1,137 @@
+server:
+  port: 8080
+
+pages:
+  - name: Home
+    columns:
+      - size: small
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+
+          - type: to-do
+            id: main
+
+      - size: full
+        widgets:
+          - type: custom-api
+            title: Calendar Events
+            cache: 15m
+            url: http://localhost:8076/events
+            parameters:
+              url: ${ICS_URL}
+              limit: 5
+            template: |
+              {{ $events := .JSON.Array "events" }}
+              {{ $count := len $events }}
+              {{ $limit := 3 }}
+
+              {{ if eq $count 0 }}
+                <div style="padding:8px 10px; border-radius:10px; background:var(--surface-2);">
+                  No entries found.
+                </div>
+              {{ end }}
+
+              <ul class="list list-gap-10">
+                {{ range $i, $e := $events }}
+                  {{ $ongoing := $e.Bool "ongoing" }}
+                  {{ if $ongoing }}
+                    {{ $start := $e.String "start" | parseTime "rfc3339" }}
+                    {{ $end := $e.String "end" | parseTime "rfc3339" }}
+                    {{ $name := $e.String "name" }}
+                    {{ $url := $e.String "url" }}
+                    <li>
+                      <div class="flex items-center justify-between gap-10">
+                        <div>
+                          {{ if $url }}
+                            <a class="size-h3 color-highlight block text-truncate" href="{{ $url }}" target="_blank" rel="noreferrer" title="{{ $name }}">{{ $name }}</a>
+                          {{ else }}
+                            <span class="size-h3 color-highlight block text-truncate" title="{{ $name }}">{{ $name }}</span>
+                          {{ end }}
+                          <div style="font-size:.85em;">{{ $start | formatTime "Mon, 02 Jan 2006" }}</div>
+                        </div>
+                        <div class="size-h3 color-primary" style="white-space:nowrap;">
+                          ends <span {{ $end | toRelativeTime }}></span>
+                        </div>
+                      </div>
+                    </li>
+                  {{ end }}
+                {{ end }}
+              </ul>
+
+              {{ $shown := 0 }}
+              <ul class="list list-gap-10 collapsible-container" data-collapse-after="{{ $limit }}">
+                {{ range $i, $e := $events }}
+                  {{ $ongoing := $e.Bool "ongoing" }}
+                  {{ if not $ongoing }}
+                    {{ $start := $e.String "start" | parseTime "rfc3339" }}
+                    {{ $name := $e.String "name" }}
+                    {{ $url := $e.String "url" }}
+                    <li {{ if ge $shown $limit }}class="collapsible-item"{{ end }}>
+                      <div class="flex items-center justify-between gap-10">
+                        <div>
+                          {{ if $url }}
+                            <a class="size-h3 color-highlight block text-truncate" href="{{ $url }}" target="_blank" rel="noreferrer" title="{{ $name }}">{{ $name }}</a>
+                          {{ else }}
+                            <span class="size-h3 color-highlight block text-truncate" title="{{ $name }}">{{ $name }}</span>
+                          {{ end }}
+                          <div style="font-size:.85em;">{{ $start | formatTime "Mon, 02 Jan 2006" }}</div>
+                        </div>
+                        <div class="size-h3 color-primary" style="white-space:nowrap;" {{ $start | toRelativeTime }}></div>
+                      </div>
+                    </li>
+                    {{ $shown = add $shown 1 }}
+                  {{ end }}
+                {{ end }}
+              </ul>
+
+      - size: small
+        widgets:
+          - type: monitor
+            title: Services
+            sites:
+              - title: Pi-hole
+                url: https://pihole.neustrom.net
+                check-url: http://pihole-web.pihole.svc.cluster.local/api/info/version
+                icon: si:pihole
+                alt-status-codes:
+                  - 403
+              - title: ArgoCD
+                url: https://argocd.neustrom.net
+                check-url: http://argocd-server.argocd.svc.cluster.local
+                icon: si:argo
+              - title: Authentik
+                url: https://auth.neustrom.net
+                check-url: http://authentik-server.authentik.svc.cluster.local
+                icon: si:authentik
+              - title: Traefik
+                url: https://traefik.neustrom.net
+                check-url: http://traefik.traefik.svc.cluster.local:9000/ping
+                icon: si:traefikproxy
+
+  - name: Home-lab
+    slug: home-lab
+    columns:
+      - size: full
+        widgets:
+          - type: extension
+            title: Kubernetes Apps
+            url: http://glance-k8s/extension/apps
+            allow-potentially-dangerous-html: true
+            cache: 30s
+            parameters:
+              show-if: |
+                namespace != "kube-system"
+
+      - size: small
+        widgets:
+          - type: extension
+            title: Kubernetes Nodes
+            url: http://glance-k8s/extension/nodes
+            allow-potentially-dangerous-html: true
+            cache: 30s
+
+          - type: dns-stats
+            service: pihole-v6
+            url: http://pihole-web.pihole.svc.cluster.local
+            password: ${PIHOLE_TOKEN}
