@@ -117,6 +117,6 @@ pages:
             cache: 30s
 
           - type: dns-stats
-            service: pihole
+            service: pihole-v6
             url: http://pihole-web.pihole.svc.cluster.local
             token: ${PIHOLE_TOKEN}
