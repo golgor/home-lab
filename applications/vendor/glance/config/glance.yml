@@ -9,7 +9,7 @@ pages:
           - type: calendar
             first-day-of-week: monday
 
-          - type: todo
+          - type: to-do
             id: main
 
           - type: bookmarks
