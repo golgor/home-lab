@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: glance
+  namespace: glance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: glance
+  template:
+    metadata:
+      labels:
+        app: glance
+    spec:
+      serviceAccountName: glance-k8s
+      containers:
+        - name: glance
+          image: glanceapp/glance:v0.8.4
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ICS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: glance-secrets
+                  key: ICS_URL
+            - name: PIHOLE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: glance-secrets
+                  key: PIHOLE_TOKEN
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+        - name: ical-api
+          image: ghcr.io/awildleon/glance-ical-events:latest
+          ports:
+            - containerPort: 8076
+      volumes:
+        - name: config
+          configMap:
+            name: glance-config
