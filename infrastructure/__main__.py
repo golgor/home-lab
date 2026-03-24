@@ -20,7 +20,7 @@ human_users = [
 ]
 
 service_accounts = [
-    PostgresqlServiceAccount(name, pg_config=pg_config) for name in ["authentik"]
+    PostgresqlServiceAccount(name, pg_config=pg_config) for name in ["authentik", "homarr"]
 ]
 
 for user in human_users:
