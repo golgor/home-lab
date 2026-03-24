@@ -12,20 +12,6 @@ pages:
           - type: to-do
             id: main
 
-          - type: bookmarks
-            groups:
-              - name: Apps
-                links:
-                  - title: Pihole
-                    url: https://pihole.neustrom.net
-                    icon: si:pihole
-                  - title: ArgoCD
-                    url: https://argocd.neustrom.net
-                    icon: si:argo
-                  - title: Authentik
-                    url: https://auth.neustrom.net
-                    icon: si:authentik
-
       - size: full
         widgets:
           - type: custom-api
@@ -99,6 +85,33 @@ pages:
                 {{ end }}
               </ul>
 
+      - size: small
+        widgets:
+          - type: monitor
+            title: Services
+            sites:
+              - title: Pi-hole
+                url: https://pihole.neustrom.net
+                check-url: http://pihole-web.pihole.svc.cluster.local
+                icon: si:pihole
+              - title: ArgoCD
+                url: https://argocd.neustrom.net
+                check-url: http://argocd-server.argocd.svc.cluster.local
+                icon: si:argo
+              - title: Authentik
+                url: https://auth.neustrom.net
+                check-url: http://authentik-server.authentik.svc.cluster.local
+                icon: si:authentik
+              - title: Traefik
+                url: https://traefik.neustrom.net
+                check-url: http://traefik.traefik.svc.cluster.local:9000/ping
+                icon: si:traefikproxy
+
+  - name: Home-lab
+    slug: home-lab
+    columns:
+      - size: full
+        widgets:
           - type: extension
             title: Kubernetes Apps
             url: http://glance-k8s/extension/apps

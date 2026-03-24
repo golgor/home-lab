@@ -126,9 +126,10 @@ nav:
     - cert-manager: applications/cert-manager.md
     - Traefik: applications/traefik.md
     - Authentik: applications/authentik.md
-    - Homepage: applications/homepage.md
+    - Glance: applications/glance.md
   - Guides:
     - Adding a Vendor App: guides/vendor.md
+    - Glance Configuration: guides/glance.md
     - Adding a Custom App: guides/custom.md
     - Authentik Forward Auth: guides/authentik.md
     - Ansible: guides/ansible.md
