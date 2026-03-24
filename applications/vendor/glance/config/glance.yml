@@ -119,4 +119,4 @@ pages:
           - type: dns-stats
             service: pihole-v6
             url: http://pihole-web.pihole.svc.cluster.local
-            token: ${PIHOLE_TOKEN}
+            password: ${PIHOLE_TOKEN}
