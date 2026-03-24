@@ -10,9 +10,9 @@ spec:
   routes:
     - match: Host(`dashboard1.neustrom.net`)
       kind: Rule
-      middlewares:
-        - name: authentik-forwardauth
-          namespace: authentik
+      # middlewares:
+      #   - name: authentik-forwardauth
+      #     namespace: authentik
       services:
         - name: homarr
           port: 7575
