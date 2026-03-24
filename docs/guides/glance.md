@@ -136,6 +136,20 @@ The `url` and `check-url` are independent — `url` is what the user
 clicks, `check-url` is silently polled. Omitting `check-url` means
 `url` is used for both.
 
+If a service returns a non-200 that should still be considered healthy,
+list the accepted codes with `alt-status-codes`. The site will show as
+online but with a warning indicator rather than a full green status:
+
+```yaml
+sites:
+  - title: Pi-hole
+    url: https://pihole.neustrom.net
+    check-url: http://pihole-web.pihole.svc.cluster.local/api/info/version
+    icon: si:pihole
+    alt-status-codes:
+      - 403
+```
+
 To show only failing services:
 
 ```yaml
