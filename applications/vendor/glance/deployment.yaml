@@ -31,6 +31,16 @@ spec:
                 secretKeyRef:
                   name: glance-secrets
                   key: PIHOLE_TOKEN
+            - name: COST_TRACKER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: glance-secrets
+                  key: COST_TRACKER_API_KEY
+            - name: COST_TRACKER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: glance-secrets
+                  key: COST_TRACKER_URL
           volumeMounts:
             - name: config
               mountPath: /app/config

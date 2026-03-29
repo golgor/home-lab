@@ -135,3 +135,89 @@ pages:
             service: pihole-v6
             url: http://pihole-web.pihole.svc.cluster.local
             password: ${PIHOLE_TOKEN}
+
+          - type: custom-api
+            title: Monthly Finances
+            url: ${COST_TRACKER_URL}/api/v1/summary
+            headers:
+              Authorization: Bearer ${COST_TRACKER_API_KEY}
+            cache: 30m
+            template: |
+              <div style="display:flex; flex-direction:column; gap:14px;">
+
+                <div class="flex items-center justify-between">
+                  <span style="font-size:1.5em; font-weight:600;" class="color-highlight">
+                    {{ .JSON.String "month.currency" }} {{ .JSON.String "month.total" }}
+                  </span>
+                  <span class="size-h4 color-subdue">{{ .JSON.String "month.period" }}</span>
+                </div>
+
+                <div class="flex gap-10">
+                  <span class="size-h4">{{ .JSON.Int "month.expense_count" }} expenses</span>
+                  {{ if gt (.JSON.Int "month.unsettled_count") 0 }}
+                    <span class="size-h4 color-negative">· {{ .JSON.Int "month.unsettled_count" }} unsettled</span>
+                  {{ end }}
+                </div>
+
+                <div style="border-top:1px solid rgba(128,128,128,0.2); padding-top:10px;">
+                  <div class="size-h4 color-subdue" style="margin-bottom:4px;">Balance</div>
+                  {{ if eq (.JSON.String "month.balance.direction") "All square" }}
+                    <div class="size-h3 color-positive">All square</div>
+                  {{ else }}
+                    <div class="size-h3">{{ .JSON.String "month.balance.direction" }}</div>
+                    <div class="flex gap-10" style="margin-top:8px;">
+                      {{ range .JSON.Array "month.balance.members" }}
+                        {{ $net := .Float "net" }}
+                        <div style="flex:1; background:var(--surface-2); border-radius:6px; padding:6px 10px;">
+                          <div class="size-h4 color-subdue">{{ .String "name" }}</div>
+                          <div class="size-h3 {{ if lt $net 0.0 }}color-negative{{ else }}color-positive{{ end }}">
+                            {{ .String "net" }}
+                          </div>
+                        </div>
+                      {{ end }}
+                    </div>
+                  {{ end }}
+                </div>
+
+              </div>
+
+          - type: custom-api
+            title: Recurring Costs
+            url: ${COST_TRACKER_URL}/api/v1/summary
+            headers:
+              Authorization: Bearer ${COST_TRACKER_API_KEY}
+            cache: 1h
+            template: |
+              <div style="display:flex; flex-direction:column; gap:14px;">
+
+                <div class="flex items-center justify-between">
+                  <span class="size-h4 color-subdue">{{ .JSON.Int "recurring.active_count" }} active</span>
+                  <span class="size-h3 color-highlight">
+                    {{ .JSON.String "recurring.currency" }} {{ .JSON.String "recurring.total_monthly_cost" }}
+                    <span class="size-h4 color-subdue">/mo</span>
+                  </span>
+                </div>
+
+                {{ if gt (.JSON.Int "recurring.active_count") 0 }}
+                  <div style="border-top:1px solid rgba(128,128,128,0.2); padding-top:8px;">
+                    <div class="size-h4 color-subdue" style="margin-bottom:6px;">Upcoming</div>
+                    <ul class="list list-gap-10">
+                      {{ range .JSON.Array "recurring.upcoming" }}
+                        <li>
+                          <div class="flex items-center justify-between gap-10">
+                            <div>
+                              <span class="size-h4 color-highlight block text-truncate">{{ .String "name" }}</span>
+                              <span class="size-h4 color-subdue">{{ .String "payer" }}</span>
+                            </div>
+                            <div style="text-align:right; white-space:nowrap;">
+                              <div class="size-h4 color-primary">{{ .String "amount" }}</div>
+                              <div class="size-h4 color-subdue">{{ .String "next_due_date" }}</div>
+                            </div>
+                          </div>
+                        </li>
+                      {{ end }}
+                    </ul>
+                  </div>
+                {{ end }}
+
+              </div>
