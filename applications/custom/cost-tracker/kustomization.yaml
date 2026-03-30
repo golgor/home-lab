@@ -11,11 +11,10 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingressroute.yaml
+  - sealedsecret.yaml
 
 configMapGenerator:
   - name: cost-tracker-config
-    options:
-      disableNameSuffixHash: true
     literals:
       - LOG_LEVEL=info
       - ENV=production
