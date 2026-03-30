@@ -31,6 +31,28 @@ flowchart LR
 - **Glance** can display a finance summary widget on the dashboard by
   calling the Cost Tracker API.
 
+## Database migrations
+
+The application uses Alembic to manage its database schema. Migrations
+run automatically on every pod start via an **init container** — a small
+setup step that runs before the main application launches. If the
+database is already up to date, the migration is a no-op.
+
+## DNS workaround
+
+!!! warning "Temporary workaround"
+    This should be removed once the RPi uses PiHole as its DNS server.
+
+The cost-tracker pod needs to contact Authentik (`auth.neustrom.net`) for
+OIDC login. However, pods inside the cluster use a different DNS system
+(CoreDNS) than your computer. Your computer resolves `*.neustrom.net`
+via PiHole, but the cluster node (RPi) doesn't use PiHole — so pods
+can't find `auth.neustrom.net`.
+
+As a workaround, the deployment includes a `hostAliases` entry that
+hard-codes `auth.neustrom.net → 10.0.0.110` directly in the pod. This
+is like adding a line to `/etc/hosts`, but for the pod only.
+
 ## Key details
 
 | Key | Value |

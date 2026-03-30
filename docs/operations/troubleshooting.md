@@ -79,6 +79,51 @@ The Gateway created by the Traefik Helm chart is named `traefik-gateway` (not `t
 kubectl get gateway -n traefik
 ```
 
+## DNS / Pod Networking
+
+### Pod can't resolve `*.neustrom.net`
+
+**Symptom:** app returns 503, logs show connection errors to `auth.neustrom.net` or other cluster hostnames.
+
+**Diagnose** from inside the cluster:
+
+```bash
+kubectl run tmp-shell --rm -i --tty --image=busybox -- nslookup auth.neustrom.net
+```
+
+If you see `NXDOMAIN`, the pod's DNS (CoreDNS) can't resolve the domain.
+
+**Cause:** `*.neustrom.net` is only resolvable via PiHole. CoreDNS inherits the node's DNS
+settings. If the RPi doesn't use PiHole as its DNS server, pods can't resolve those domains.
+
+**Workaround:** add `hostAliases` to the pod spec:
+
+```yaml
+spec:
+  hostAliases:
+    - ip: "10.0.0.110"
+      hostnames:
+        - auth.neustrom.net
+```
+
+**Proper fix:** configure the RPi to use PiHole as its DNS server so all pods resolve
+`*.neustrom.net` automatically.
+
+## Container Images
+
+### Image pull 401 Unauthorized from ghcr.io
+
+```text
+failed to authorize: failed to fetch anonymous token: unexpected status: 401 Unauthorized
+```
+
+**Cause:** GitHub Container Registry packages default to **private**, even when the source repo is public.
+
+**Fix (preferred):** make the package public in GitHub → Package settings → Change visibility → Public.
+
+**Fix (private image):** create a Kubernetes secret with a GitHub PAT and reference it as `imagePullSecrets`
+in the pod spec.
+
 ## cert-manager
 
 ### Certificate not issuing
