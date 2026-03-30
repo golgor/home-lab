@@ -13,6 +13,10 @@ spec:
       labels:
         app: cost-tracker
     spec:
+      hostAliases:
+        - ip: "10.0.0.110"
+          hostnames:
+            - auth.neustrom.net
       containers:
         - name: cost-tracker
           image: ghcr.io/golgor/cost-tracker:1.0.0
