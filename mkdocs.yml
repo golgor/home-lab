@@ -135,6 +135,7 @@ nav:
     - Ansible: guides/ansible.md
     - Remote kubectl Access: guides/k3s-remote-access.md
     - Per-Network DNS: guides/per-network-dns.md
+    - Security Hardening: guides/security-hardening.md
     - Pulumi:
       - Overview: guides/pulumi/overview.md
       - Stacks: guides/pulumi/stacks.md
