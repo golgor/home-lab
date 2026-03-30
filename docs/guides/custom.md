@@ -14,27 +14,52 @@ generator. This works well because all custom apps follow the same pattern:
 - Same repo for manifests (this repo)
 - Same deployment conventions
 
-The ApplicationSet automatically discovers directories under
-`applications/custom/` and creates an ArgoCD Application for each one.
+The ApplicationSet (`applications/custom/custom-apps.yaml`) automatically
+discovers directories under `applications/custom/` and creates an ArgoCD
+Application for each one. Each app gets its own namespace matching the
+directory name.
+
+### Bootstrap (one-time)
+
+The ApplicationSet must be applied manually once:
+
+```bash
+kubectl apply -f applications/custom/custom-apps.yaml
+```
+
+After that, adding a new directory under `applications/custom/` is enough
+for ArgoCD to pick it up automatically.
 
 ## Adding a Custom App
 
 1. Create a directory under `applications/custom/<app-name>/`
 2. Add Kustomize manifests (deployment, service, ingress, etc.)
 3. Reference the container image from ghcr.io
-4. Commit and push — the ApplicationSet discovers it automatically
+4. If the app needs a database, add a `PostgresqlServiceAccount` in
+   `infrastructure/__main__.py` and run `pulumi up`
+5. Seal any secrets with `mise run seal-secret`
+6. Commit and push — the ApplicationSet discovers it automatically
 
 No `application.yaml` needed — the ApplicationSet handles that.
 
-## Example Structure
+## Example: cost-tracker
+
+The `cost-tracker` app is the first custom app deployed this way:
 
 ```text
-applications/custom/my-app/
+applications/custom/cost-tracker/
 ├── kustomization.yaml
 ├── deployment.yaml
 ├── service.yaml
-└── ingress.yaml
+└── ingressroute.yaml
 ```
+
+- **kustomization.yaml** — sets namespace, lists resources, generates a
+  ConfigMap for non-secret config (`LOG_LEVEL`, `ENV`)
+- **deployment.yaml** — references `ghcr.io/golgor/cost-tracker:1.0.0`,
+  injects secrets from a SealedSecret and config from the ConfigMap
+- **service.yaml** — ClusterIP service on port 8000
+- **ingressroute.yaml** — Traefik IngressRoute for `costs.neustrom.net`
 
 ## Image Updates
 

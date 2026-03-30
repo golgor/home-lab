@@ -14,7 +14,9 @@ Mono-repo for home lab infrastructure based on k3s.
     - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
     - `traefik-certs/` - Wildcard Certificate + TLSStore for Traefik default TLS
     - `authentik/` - Authentik identity provider (SSO, forward-auth)
-  - `custom/` - Self-developed apps (separate repos, images on GitHub)
+  - `custom/` - Self-developed apps managed by ArgoCD (ApplicationSet pattern)
+    - `custom-apps.yaml` - ApplicationSet, scans for directories under `applications/custom/*`
+    - `cost-tracker/` - Household expense-sharing app
 - `infrastructure/` - Single Pulumi project (Python/uv), one ComponentResource package per component
   - `postgres/` - PostgreSQL Docker container
   - `postgresql_config/` - Database management (roles, users, service accounts, grants)
@@ -38,6 +40,9 @@ kustomize build --enable-helm applications/bootstrap/argocd | kubectl apply --se
 
 # Apply App of Apps (ArgoCD then manages everything else)
 kubectl apply -f applications/vendor/vendor-apps.yaml
+
+# Apply Custom Apps ApplicationSet
+kubectl apply -f applications/custom/custom-apps.yaml
 
 # Apply database endpoint (update IP in endpointslice.yaml first)
 kubectl apply -k applications/bootstrap/postgres/

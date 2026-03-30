@@ -127,6 +127,7 @@ nav:
     - Traefik: applications/traefik.md
     - Authentik: applications/authentik.md
     - Glance: applications/glance.md
+    - Cost Tracker: applications/cost-tracker.md
   - Guides:
     - Adding a Vendor App: guides/vendor.md
     - Glance Configuration: guides/glance.md
