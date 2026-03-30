@@ -17,6 +17,17 @@ pointing to the node's public IP.
 For local access from machines on the same network, a wildcard DNS record on your local resolver
 (Pi-hole, AdGuard Home, etc.) pointing `*.neustrom.net` to the node's LAN IP is sufficient.
 
+!!! warning "The k3s node must also use the local resolver"
+    Pods use CoreDNS, which inherits the node's DNS settings — not
+    your laptop's. If the node (RPi) doesn't use PiHole as its DNS
+    server, pods can't resolve `*.neustrom.net`. This breaks any
+    server-side request to another cluster app (e.g. OIDC discovery
+    against `auth.neustrom.net`).
+
+    **Quick workaround:** add `hostAliases` in the pod spec to
+    hard-code the mapping. **Proper fix:** configure the node's DNS to
+    use PiHole.
+
 ## HTTP to HTTPS Redirect
 
 HTTP→HTTPS redirection is handled globally at the Traefik entrypoint level — no per-route middleware

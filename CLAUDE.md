@@ -14,7 +14,9 @@ Mono-repo for home lab infrastructure based on k3s.
     - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
     - `traefik-certs/` - Wildcard Certificate + TLSStore for Traefik default TLS
     - `authentik/` - Authentik identity provider (SSO, forward-auth)
-  - `custom/` - Self-developed apps (separate repos, images on GitHub)
+  - `custom/` - Self-developed apps managed by ArgoCD (ApplicationSet pattern)
+    - `custom-apps.yaml` - ApplicationSet, scans for directories under `applications/custom/*`
+    - `cost-tracker/` - Household expense-sharing app
 - `infrastructure/` - Single Pulumi project (Python/uv), one ComponentResource package per component
   - `postgres/` - PostgreSQL Docker container
   - `postgresql_config/` - Database management (roles, users, service accounts, grants)
@@ -38,6 +40,9 @@ kustomize build --enable-helm applications/bootstrap/argocd | kubectl apply --se
 
 # Apply App of Apps (ArgoCD then manages everything else)
 kubectl apply -f applications/vendor/vendor-apps.yaml
+
+# Apply Custom Apps ApplicationSet
+kubectl apply -f applications/custom/custom-apps.yaml
 
 # Apply database endpoint (update IP in endpointslice.yaml first)
 kubectl apply -k applications/bootstrap/postgres/
@@ -92,3 +97,5 @@ On cluster re-install: run `mise run fetch-cert` first, then re-seal all secrets
 - **Pulumi Docker log drift**: explicitly set `log_driver="json-file"` and `log_opts` to match Docker daemon defaults, otherwise Pulumi sees a diff and replaces the container on every `pulumi up`
 - **Pulumi state is local**: stored in `~/.pulumi/`, not backed up automatically. Losing state means manual `pulumi import` or recreate from scratch.
 - **Database SSL**: both Pulumi and workload connections currently use `sslmode=disable` (localhost Docker). `PostgresqlConfig` defaults to `require` — the call site overrides to `disable`. When PostgreSQL moves off-host, remove the override and update workload configs separately.
+- **Pod DNS ≠ node DNS**: Pods use CoreDNS, not the node's `/etc/hosts`. If `*.neustrom.net` is only resolvable via PiHole and the RPi doesn't use PiHole as its DNS server, pods can't resolve those domains (e.g. OIDC issuer at `auth.neustrom.net`). Workaround: `hostAliases` in the pod spec. Proper fix: configure the RPi to use PiHole as its DNS server.
+- **ghcr.io packages are private by default**: GitHub Container Registry packages default to private even when the source repo is public. Either make the package public in GitHub package settings, or create an `imagePullSecret` with a GitHub PAT.

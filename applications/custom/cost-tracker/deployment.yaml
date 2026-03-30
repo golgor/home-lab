@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cost-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cost-tracker
+  template:
+    metadata:
+      labels:
+        app: cost-tracker
+    spec:
+      hostAliases:
+        - ip: "10.0.0.110"
+          hostnames:
+            - auth.neustrom.net
+      initContainers:
+        - name: migrate
+          image: ghcr.io/golgor/cost-tracker:1.0.1
+          command: ["alembic", "upgrade", "head"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: DATABASE_URL
+      containers:
+        - name: cost-tracker
+          image: ghcr.io/golgor/cost-tracker:1.0.1
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: cost-tracker-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: SECRET_KEY
+            - name: OIDC_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: OIDC_ISSUER
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: OIDC_CLIENT_ID
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: OIDC_CLIENT_SECRET
+            - name: OIDC_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: OIDC_REDIRECT_URI
+            - name: INTERNAL_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: INTERNAL_WEBHOOK_SECRET
+            - name: GLANCE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cost-tracker-secrets
+                  key: GLANCE_API_KEY

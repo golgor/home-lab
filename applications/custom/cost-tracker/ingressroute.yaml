@@ -1,0 +1,14 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: cost-tracker
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`costs.neustrom.net`)
+      kind: Rule
+      services:
+        - name: cost-tracker
+          port: 8000

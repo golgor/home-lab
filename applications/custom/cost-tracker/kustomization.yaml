@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cost-tracker
+
+commonAnnotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingressroute.yaml
+  - sealedsecret.yaml
+
+configMapGenerator:
+  - name: cost-tracker-config
+    literals:
+      - LOG_LEVEL=info
+      - ENV=production

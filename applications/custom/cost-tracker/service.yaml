@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cost-tracker
+spec:
+  selector:
+    app: cost-tracker
+  ports:
+    - port: 8000
+      targetPort: 8000
