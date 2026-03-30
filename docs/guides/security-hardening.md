@@ -59,54 +59,67 @@ set to "Full" (Traefik terminates TLS internally).
 
 ---
 
-## Authentication Strategy: Defense in Depth
+## Authentication Strategy
 
-Every externally-facing service gets up to three independent authentication layers:
+**Principle:** Every service must have at least one authentication layer. Use
+exactly one method per user-facing app to avoid login friction. Add a second
+layer only for critical admin tools (ArgoCD, Traefik dashboard) where a
+compromise means full cluster control.
 
-| Layer | Where | What | Protects against |
-| --- | --- | --- | --- |
-| **Cloudflare Access** | Cloudflare edge | Zero Trust auth gate | Traefik/app zero-days, tunnel compromise |
-| **Authentik forward-auth** | Traefik middleware | SSO cookie check | App-level auth bugs, unauthenticated access |
-| **App-native auth** | Application | Built-in login (ArgoCD, OIDC) | Forward-auth bypass, session hijacking |
+Two authentication methods are available:
 
-An attacker must compromise all layers to gain access. Even a zero-day in one
-layer is blocked by the others.
+| Method | How it works | Best for |
+| --- | --- | --- |
+| **Authentik forward-auth** | Traefik middleware checks SSO cookie before routing | Apps with no built-in auth (Glance, Pi-hole) |
+| **App-native auth (OIDC)** | App handles its own login via Authentik as OIDC provider | Apps with built-in OIDC (cost-tracker) |
+
+Both use Authentik as the identity provider -- the user logs in once and the
+SSO cookie covers all `*.neustrom.net` apps (domain-level forward-auth).
 
 ```mermaid
 sequenceDiagram
     participant User
-    participant CF as Cloudflare Access
     participant Traefik
     participant Authentik
     participant App as Application
 
-    User->>CF: GET app.neustrom.net
-    alt Not authenticated at Cloudflare
-        CF->>User: Cloudflare Access login (email/GitHub)
-    end
-    CF->>Traefik: Forward via tunnel
+    User->>Traefik: GET app.neustrom.net
     Traefik->>Authentik: Forward-auth check
-    alt Not authenticated at Authentik
+    alt Not logged in
         Authentik->>User: 302 redirect to auth.neustrom.net
         User->>Authentik: SSO login
         Authentik->>User: Set cookie + redirect back
     end
     Authentik->>Traefik: 200 OK + user headers
     Traefik->>App: Forward request
-    Note over App: App may have its own login (ArgoCD, OIDC)
     App->>User: Response
 ```
 
-### Per-service auth analysis
+### Per-service auth plan
 
-| Service | Host | Current auth | After hardening |
-| --- | --- | --- | --- |
-| **Glance** | `neustrom.net` | **None** | CF Access + forward-auth |
-| **Cost-tracker** | `costs.neustrom.net` | OIDC only | CF Access + forward-auth + OIDC |
-| **Authentik** | `auth.neustrom.net` | Own login | CF Access (exempt from forward-auth) |
-| **ArgoCD** | `argocd.neustrom.net` | Own login only | CF Access + forward-auth + built-in login |
-| **Traefik** | `traefik.neustrom.net` | Forward-auth | CF Access + forward-auth |
-| **Pi-hole** | `pihole.neustrom.net` | Forward-auth | CF Access + forward-auth |
+| Service | Host | Current auth | After hardening | Layers |
+| --- | --- | --- | --- | --- |
+| **Glance** | `neustrom.net` | **None** | Forward-auth | 1 |
+| **Cost-tracker** | `costs.neustrom.net` | OIDC only | OIDC (already has it) | 1 |
+| **Pi-hole** | `pihole.neustrom.net` | Forward-auth | Forward-auth (no change) | 1 |
+| **Authentik** | `auth.neustrom.net` | Own login | Own login (no change) | 1 |
+| **ArgoCD** | `argocd.neustrom.net` | Own login only | Forward-auth + built-in login | 2 |
+| **Traefik** | `traefik.neustrom.net` | Forward-auth | Forward-auth (no change) | 1+ |
+
+!!! info "Why two layers for ArgoCD?"
+    ArgoCD has **cluster-admin privileges** -- it can deploy any manifest, read
+    any secret, and modify any resource. It has had auth bypass CVEs in the past
+    (e.g., CVE-2024-31990). A second layer (forward-auth) ensures an ArgoCD
+    auth bug alone cannot grant cluster control. The Traefik dashboard already
+    has forward-auth, so it keeps its existing protection.
+
+!!! info "Why one layer is enough for user apps"
+    Cost-tracker and Glance are user-facing apps with limited blast radius. A
+    compromised cost-tracker exposes financial data but not cluster control.
+    Adding forward-auth on top of OIDC would mean two login prompts, which
+    adds friction for mobile use (the primary use case). One solid auth
+    layer is sufficient -- the real defense against lateral movement comes
+    from NetworkPolicies and pod security (see below).
 
 ---
 
@@ -336,45 +349,22 @@ spec:
           port: 8080
 ```
 
-### 6. Add forward-auth to cost-tracker
+### 6. Verify cost-tracker has auth
 
-**Gap:** The cost-tracker IngressRoute on branch `claude/deploy-cost-tracker-app-2qfJs`
-has no forward-auth middleware. It relies solely on built-in OIDC.
+**Status:** Cost-tracker on branch `claude/deploy-cost-tracker-app-2qfJs` already
+has built-in OIDC (`OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` env
+vars in the deployment). This is sufficient as a single auth layer.
 
-**Why add forward-auth when OIDC already exists?** Defense in depth. OIDC
-implementations can have vulnerabilities:
+**No forward-auth needed** -- cost-tracker is a user-facing app, not an admin
+tool. Adding forward-auth on top of OIDC would mean two login prompts, hurting
+the mobile use case. The OIDC integration uses Authentik as the identity
+provider, so it benefits from the same SSO session.
 
-- Token validation bypass
-- Open redirect in redirect URI
-- SSRF via crafted redirect
-- Missing audience/issuer checks
-
-Forward-auth blocks unauthenticated users at the Traefik level, before the
-request ever reaches the application. If the OIDC implementation has a bug, the
-attacker is still blocked by Authentik.
-
-**Fix:** Add `authentik-forwardauth` middleware to the IngressRoute when merging
-the cost-tracker branch:
-
-```yaml
-# applications/custom/cost-tracker/ingressroute.yaml (PROPOSED)
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: cost-tracker
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`costs.neustrom.net`)
-      kind: Rule
-      middlewares:
-        - name: authentik-forwardauth
-          namespace: authentik
-      services:
-        - name: cost-tracker
-          port: 8000
-```
+**Verify when merging:** Confirm that the OIDC configuration is correct and
+that unauthenticated API requests (e.g., `/api/v1/summary`) return 401.
+The Glance dashboard calls cost-tracker's API with a bearer token
+(`GLANCE_API_KEY`), so API-key-based access must remain functional for
+internal cluster traffic.
 
 ---
 
@@ -462,27 +452,7 @@ spec:
 Add as a default middleware on the websecure entrypoint (same as security
 headers above).
 
-### 9. Cloudflare Access (Zero Trust)
-
-**Gap:** Without Cloudflare Access, a vulnerability in Traefik or any application
-could allow unauthenticated access through the tunnel.
-
-**Fix:** On the Cloudflare Zero Trust dashboard (free, up to 50 users):
-
-1. Go to Access > Applications > Add an application
-2. Type: Self-hosted
-3. Application domain: `*.neustrom.net`
-4. Add identity provider (one-time PIN via email, or GitHub/Google OAuth)
-5. Create a policy: Allow -- Emails ending in `@yourdomain` (or specific emails)
-6. **Exempt `auth.neustrom.net`** from the Access policy (Authentik must be
-   publicly reachable for OIDC redirect flows)
-
-!!! warning "Authentik exemption"
-    If `auth.neustrom.net` is behind Cloudflare Access, OIDC redirects will
-    fail with a redirect loop. Authentik is the identity provider -- it must
-    be reachable to authenticate users. Its own login page is its protection.
-
-### 10. NetworkPolicies
+### 9. NetworkPolicies
 
 **Gap:** Zero NetworkPolicies in the cluster. Every pod can communicate with
 every other pod across all namespaces. If any container is compromised, the
@@ -510,12 +480,12 @@ service.
     - **Option B:** Restart k3s with `--flannel-backend=none` and install
       Calico or Cilium from scratch
 
-    This is the most disruptive change in the plan. It can be deferred since
-    Cloudflare Tunnel + triple auth layers already provide strong perimeter
-    defense. NetworkPolicies add defense against **lateral movement** after
-    an initial container compromise.
+    This is the most disruptive change in the plan but also one of the most
+    important. Without NetworkPolicies, a compromised pod can directly
+    attack every other service in the cluster. This is the primary defense
+    against lateral movement.
 
-### 11. Bind kubelet to node IP
+### 10. Bind kubelet to node IP
 
 **Gap:** `node-ip=0.0.0.0` in `diet-pi/k3s-config.yaml` binds the kubelet
 API to all network interfaces.
@@ -535,7 +505,7 @@ kubelet-arg:
 Address these soon after initial exposure. They add defense-in-depth layers
 that limit blast radius if an attacker gains a foothold.
 
-### 12. Pod security contexts
+### 11. Pod security contexts
 
 **Gap:** No deployment specifies security contexts. Containers run as root
 with full Linux capabilities and writable root filesystems.
@@ -572,7 +542,7 @@ spec:
     Some apps need writable temp directories. Add an `emptyDir` volume
     mounted at `/tmp` for those cases. Test each app individually.
 
-### 13. Pod Security Admission (PSA)
+### 12. Pod Security Admission (PSA)
 
 **Gap:** No cluster-level enforcement prevents over-privileged pods.
 
@@ -589,7 +559,7 @@ Start with `warn` on all namespaces, fix violations, then switch to `enforce`.
 Use `baseline` instead of `restricted` for namespaces that need elevated
 privileges (e.g., Traefik needs `NET_BIND_SERVICE`).
 
-### 14. PostgreSQL SSL
+### 13. PostgreSQL SSL
 
 **Gap:** `sslmode="disable"` in `infrastructure/__main__.py` line 14. All
 database traffic is unencrypted.
@@ -607,7 +577,7 @@ to any device on the local network, they can sniff database credentials.
    will then apply)
 3. Update Authentik's database connection to use SSL
 
-### 15. Full access logging
+### 14. Full access logging
 
 **Gap:** Traefik access logs only capture status codes 400-599
 (`applications/vendor/traefik/values.yaml` lines 86-89). Successful requests
@@ -623,7 +593,7 @@ logs:
     # Remove statuscodes filter to log ALL requests
 ```
 
-### 16. Pin floating image tags
+### 15. Pin floating image tags
 
 **Gap:** `applications/vendor/glance/deployment.yaml` line 48 uses
 `ghcr.io/awildleon/glance-ical-events:latest`. The `:latest` tag can change
@@ -633,20 +603,44 @@ at any time -- a supply chain attack could replace it with a malicious image.
 
 ---
 
+## Nice-to-Have (Optional Further Hardening)
+
+### 16. Cloudflare Access (Zero Trust)
+
+Adds an additional auth gate at Cloudflare's edge -- before traffic reaches the
+tunnel. Free for up to 50 users. Useful if you want an extra layer on top of
+Authentik, but adds another login step.
+
+Setup: Zero Trust dashboard > Access > Applications > `*.neustrom.net`. Exempt
+`auth.neustrom.net` (otherwise OIDC redirects break in a loop).
+
+### 17. CrowdSec or fail2ban on the host
+
+Even behind Cloudflare Tunnel, the DietPi host has SSH exposed on the local
+network. CrowdSec or fail2ban can detect and block brute-force attempts.
+
+### 18. Backup Pulumi local state
+
+Pulumi state in `~/.pulumi/` has no automatic backup. Losing it means manual
+`pulumi import` for every resource. Set up a cron job to an encrypted offsite
+backup.
+
+---
+
 ## Verification Checklist
 
 After implementing the plan, verify with:
 
 - [ ] **Port scan home IP** -- confirm no open ports (no port forwarding on router)
-- [ ] **Access `*.neustrom.net`** -- confirm Cloudflare Access gate appears first
 - [ ] **Test unauthenticated access** -- hit each URL without cookies, confirm
-      redirect to Authentik
+      redirect to Authentik or OIDC login
 - [ ] **Check security headers** -- `curl -I https://neustrom.net` should show
       HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy
 - [ ] **Test rate limiting** -- rapid requests should eventually get 429 responses
 - [ ] **Verify port 9000 closed** -- `curl http://10.0.0.110:9000` should fail
 - [ ] **Confirm full access logs** -- check Traefik logs show 200 responses too
-- [ ] **ArgoCD double auth** -- forward-auth login, then ArgoCD's own login page
+- [ ] **ArgoCD double auth** -- forward-auth redirects to Authentik, then ArgoCD's own login page
+- [ ] **Cost-tracker OIDC** -- unauthenticated request returns 401, OIDC login works from mobile
 - [ ] **Mobile test** -- access cost-tracker on cellular, confirm full auth flow
 - [ ] **DNS records** -- all `*.neustrom.net` should be CNAMEs, no A records
       exposing the home IP
@@ -661,11 +655,12 @@ After implementing the plan, verify with:
 | Critical | `applications/vendor/traefik/values.yaml` | `api.insecure: false`, close port 9000, add default middlewares, full logging |
 | Critical | `applications/bootstrap/argocd/ingress.yaml` | Convert to IngressRoute + forward-auth |
 | Critical | `applications/vendor/glance/ingressroute.yaml` | Add forward-auth middleware |
-| Critical | `applications/custom/cost-tracker/ingressroute.yaml` | Add forward-auth middleware (on branch) |
+| Critical | `applications/vendor/cloudflared/` | **New** -- entire directory for tunnel |
 | High | `applications/vendor/traefik/middleware-security-headers.yaml` | **New** -- security headers |
 | High | `applications/vendor/traefik/middleware-ratelimit.yaml` | **New** -- rate limiting |
 | High | `applications/vendor/traefik/kustomization.yaml` | Add new middleware resources |
-| High | `applications/vendor/cloudflared/` | **New** -- entire directory for tunnel |
+| High | CNI installation (Calico/Cilium) | Required for NetworkPolicy enforcement |
+| High | `networkpolicy.yaml` per namespace | **New** -- default-deny + allow rules |
 | Medium | `applications/vendor/glance/deployment.yaml` | Pin `:latest` tag, add security context |
 | Medium | `applications/vendor/error-pages/deployment.yaml` | Add security context |
 | Medium | `infrastructure/__main__.py` | Remove `sslmode="disable"` |
