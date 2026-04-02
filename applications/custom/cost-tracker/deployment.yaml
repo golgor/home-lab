@@ -19,7 +19,7 @@ spec:
             - auth.neustrom.net
       initContainers:
         - name: migrate
-          image: ghcr.io/golgor/cost-tracker:1.2.0
+          image: ghcr.io/golgor/cost-tracker:1.3.0
           command: ["alembic", "upgrade", "head"]
           env:
             - name: DATABASE_URL
