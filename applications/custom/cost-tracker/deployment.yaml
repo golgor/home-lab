@@ -29,7 +29,7 @@ spec:
                   key: DATABASE_URL
       containers:
         - name: cost-tracker
-          image: ghcr.io/golgor/cost-tracker:1.2.0
+          image: ghcr.io/golgor/cost-tracker:1.3.0
           ports:
             - containerPort: 8000
           envFrom:
