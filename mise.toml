@@ -1,12 +1,12 @@
 [tools]
-kubectl           = "1.35.2"
-yamllint          = "latest"
-kubeconform       = "latest"
-kubeseal          = "0.35.0"
-helm              = "4.1.1"
-uv                = "0.10.9"
+kubectl = "latest"
+yamllint = "latest"
+kubeconform = "latest"
+kubeseal = "0.35.0"
+helm = "4"
+uv = "latest"
 markdownlint-cli2 = "latest"
-pulumi         = "latest"
+pulumi = "latest"
 
 [tasks.lint]
 description = "Lint YAML files and validate Kubernetes manifests"
