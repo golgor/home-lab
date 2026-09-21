@@ -13,7 +13,7 @@ Mono-repo for home lab infrastructure based on k3s.
     - `sealed-secrets/` - Bitnami Sealed Secrets
     - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
     - `traefik-certs/` - Wildcard Certificate + TLSStore for Traefik default TLS
-    - `authentik/` - Authentik identity provider (SSO, forward-auth)
+    - `authentik/` - Authentik identity provider (SSO, forward-auth) — **currently disabled** (excluded in `vendor-apps.yaml`); access is gated by Tailscale instead. Files kept for easy re-enable.
   - `custom/` - Self-developed apps managed by ArgoCD (ApplicationSet pattern)
     - `custom-apps.yaml` - ApplicationSet, scans for directories under `applications/custom/*`
     - `cost-tracker/` - Household expense-sharing app
@@ -47,6 +47,23 @@ kubectl apply -f applications/custom/custom-apps.yaml
 # Apply database endpoint (update IP in endpointslice.yaml first)
 kubectl apply -k applications/bootstrap/postgres/
 ```
+
+## Remote access (Tailscale)
+
+No static IP at home. Remote access to `*.neustrom.net` is via **Tailscale** (personal tailnet), not port
+forwarding or a Cloudflare Tunnel. **No cluster changes are needed to enable it** — it's node-level + DNS.
+
+- The k3s node (`10.0.0.110`) is joined to the personal tailnet (`tailscale up`). Its tailnet IP is
+  `tailscale ip -4` (currently `100.89.48.68`).
+- Public Cloudflare wildcard `*.neustrom.net` A-record points at the node's **tailnet** IP, set **DNS-only
+  (grey cloud, not proxied)**. At home, PiHole overrides `*.neustrom.net` → LAN IP `10.0.0.110`, so home
+  traffic stays LAN-direct.
+- Traefik serves tailnet traffic unchanged: klipper binds node ports 80/443 on all IPs, routing is by
+  `Host`, and the wildcard cert is valid over any path (DNS-01 challenge).
+- On clients (laptop/phone), keep Tailscale's DNS-override/MagicDNS **off** — public DNS already returns
+  the tailnet IP, and leaving it off keeps the PiHole home-LAN path intact.
+
+Full walkthrough: `docs/guides/remote-access-tailscale.md`.
 
 ## Infrastructure (Pulumi)
 
@@ -89,6 +106,10 @@ On cluster re-install: run `mise run fetch-cert` first, then re-seal all secrets
 ## Gotchas
 
 - **ArgoCD bootstrap is manual** — changes to `applications/bootstrap/argocd/` must be re-applied with kubectl, not pushed and waited on
+- **vendor-apps.yaml root spec is manual** — the App-of-Apps root is applied by hand, so changes to its *own* spec (e.g. `directory.include`/`exclude`) do **not** sync from git. Re-apply with `kubectl apply -f applications/vendor/vendor-apps.yaml`. (Child app manifests under `applications/vendor/*/` do auto-sync.)
+- **Authentik is disabled, not deleted** — excluded via `exclude: "authentik/**"` in `vendor-apps.yaml`; access is gated by Tailscale instead. Deleting the ArgoCD Application did *not* cascade (no resources-finalizer), so its workloads were removed manually with `kubectl delete namespace authentik`. Its Postgres DB/role are **retained** in Pulumi. Re-enable: remove the exclude, re-apply `vendor-apps.yaml`, and re-add the `authentik-forwardauth` middleware refs (pihole + traefik dashboard IngressRoutes)
+- **Cloudflare record for tailnet must be DNS-only** — the `*.neustrom.net` A-record pointing at the `100.x` tailnet IP must stay grey-cloud. Proxying (orange cloud) breaks it: Cloudflare's edge has no tailnet membership and cannot reach a private `100.x` address
+- **Apex needs its own record** — a `*.neustrom.net` wildcard does **not** match the bare apex `neustrom.net` (wildcards cover one label to the left, not the apex). The root service (`/`) needs an explicit `neustrom.net` A-record (same DNS-only rule) and a Traefik route matching `Host(\`neustrom.net\`)`. PiHole's local wildcard (`address=/neustrom.net/10.0.0.110`) already covers the apex, so this gap is Cloudflare-only
 - **Sealed Secrets CRD**: kustomize's `helm template` skips `crds/` — fixed with `includeCRDs: true` in the helmCharts entry
 - **TLS is wildcard**: cert-manager issues `*.neustrom.net` stored in `kube-system`. Traefik's `TLSStore/default` serves it globally — no `tls:` block or cert-manager annotations needed on ingresses
 - **kubeseal controller**: named `sealed-secrets` (not `sealed-secrets-controller`) in namespace `sealed-secrets`

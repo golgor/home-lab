@@ -133,6 +133,13 @@ A public DNS record may hold a private IP — this is common and safe:
 At home, PiHole overrides this with the LAN IP so traffic stays on the LAN instead of taking a tailnet
 hop. The existing [Per-Network DNS](per-network-dns.md) setup already makes home devices use PiHole.
 
+!!! warning "The apex `neustrom.net` needs its own record"
+    A `*.neustrom.net` wildcard does **not** match the bare apex `neustrom.net` — wildcards cover one
+    label to the left, not the apex. A service on `/` therefore needs an explicit `neustrom.net` A-record
+    (same DNS-only / grey-cloud rule) plus a Traefik route matching `Host(\`neustrom.net\`)`. PiHole's
+    local wildcard (`address=/neustrom.net/10.0.0.110`) already covers the apex, so this gap is
+    Cloudflare-only.
+
 !!! note "Changing the existing public A record is safe"
     If `*.neustrom.net` currently points at a (non-functional) home public IP, repointing it to the
     tailnet IP does **not** affect certificate issuance — cert-manager uses DNS-01 (TXT records) and
