@@ -17,6 +17,9 @@ pointing to the node's public IP.
 For local access from machines on the same network, a wildcard DNS record on your local resolver
 (Pi-hole, AdGuard Home, etc.) pointing `*.neustrom.net` to the node's LAN IP is sufficient.
 
+For **remote** access without a static IP, see [Remote Access with Tailscale](../guides/remote-access-tailscale.md).
+Tailscale is a second door into the same Traefik — routing and TLS are unchanged.
+
 !!! warning "The k3s node must also use the local resolver"
     Pods use CoreDNS, which inherits the node's DNS settings — not
     your laptop's. If the node (RPi) doesn't use PiHole as its DNS

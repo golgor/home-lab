@@ -12,8 +12,6 @@ spec:
       kind: Rule
       middlewares:
         - name: pihole-redirect-admin
-        - name: authentik-forwardauth
-          namespace: authentik
       services:
         - name: pihole-web
           port: 80

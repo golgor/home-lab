@@ -13,6 +13,9 @@ spec:
     directory:
       recurse: true
       include: "**/application.yaml"
+      # Authentik disabled: access is gated by Tailscale, not forward-auth.
+      # Re-enable by removing this exclude (e.g. before exposing a service publicly via Cloudflare Tunnel).
+      exclude: "authentik/**"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
