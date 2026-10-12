@@ -137,6 +137,7 @@ nav:
     - Remote kubectl Access: guides/k3s-remote-access.md
     - Per-Network DNS: guides/per-network-dns.md
     - Remote Access (Tailscale): guides/remote-access-tailscale.md
+    - Talos Cluster Hardening: guides/talos-hardening.md
     - Pulumi:
       - Overview: guides/pulumi/overview.md
       - Stacks: guides/pulumi/stacks.md
