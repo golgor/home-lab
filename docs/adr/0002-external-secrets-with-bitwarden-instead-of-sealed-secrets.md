@@ -28,7 +28,7 @@ secret and contain no value. Sealed Secrets goes away.
 - One machine-account token is the only bootstrap secret, placed into the cluster by hand. A machine account with read
   access to the lab project is enough.
 - Agents write `ExternalSecret` manifests and never create or read values. Adding or rotating a value is a human gate,
-  and it is the one manual step left in an agent-managed lab. An issue that needs a new value is an `owner:robert`
+  and it is the one manual step left in an agent-managed lab. An issue that needs a new value is an `owner:human`
   issue that blocks the agent's pull request.
 - `fnox` is out of scope for now and keeps using the Nyström organization.
 - The Talos secrets bundle and the OpenTofu state encryption key live in the same secrets store. See

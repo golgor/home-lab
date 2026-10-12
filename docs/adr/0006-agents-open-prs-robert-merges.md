@@ -21,10 +21,10 @@ repo's issues and pull requests, and the work queue makes explicit which steps a
 - `main` needs branch protection and required CI before an agent gets write access.
 - Some actions stay human gates even after agents may merge: deleting data, adding or rotating secret values, and
   changing the Proxmox host.
-- Issues are labelled `owner:robert` or `owner:agent`, plus `blocked` and `needs-decision` where they apply, with
+- Issues are labelled `owner:human` or `owner:agent`, plus `blocked` and `needs-decision` where they apply, with
   "blocked by" links and a GitHub Project board. The infra bot opens pull requests only for `owner:agent` issues that
   are not blocked.
-- The infra bot posts a weekly digest of `owner:robert` issues that block other work, and pings Robert when one blocks
+- The infra bot posts a weekly digest of `owner:human` issues that block other work, and pings Robert when one blocks
   an otherwise ready pull request.
 - Letting agents merge low-risk changes, such as image bumps that pass CI and verification, needs a new ADR that
   supersedes this one.

@@ -127,10 +127,10 @@ verification. That step needs a new ADR that supersedes ADR 0006.
 
 ## Work tracking
 
-- Issues are the shared work queue. Every open issue is either an _owner:robert issue_ or an _owner:agent issue_.
+- Issues are the shared work queue. Every open issue is either an _owner:human issue_ or an _owner:agent issue_.
 - `blocked` marks an issue waiting on another one, and the dependency is a "blocked by" link to that issue.
 - `needs-decision` marks an issue that waits on a choice only Robert can make.
-- The infra bot posts a weekly digest of owner:robert issues that block other work. It pings Robert when one of them
+- The infra bot posts a weekly digest of owner:human issues that block other work. It pings Robert when one of them
   blocks a pull request that is otherwise ready.
 
 ## Current state vs target

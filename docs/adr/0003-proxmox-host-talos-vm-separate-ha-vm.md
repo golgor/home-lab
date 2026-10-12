@@ -53,7 +53,7 @@ Details and sources are in [research/home-assistant.md](../research/home-assista
 - Talos removes Ansible for the cluster, and Home Assistant OS removes it for the Home Assistant VM. Ansible stays
   only for the host, if needed at all.
 - Onboarding, integrations, HACS, the OIDC setup and the proxy settings in Home Assistant are manual steps, so they
-  are owner:robert work.
+  are owner:human work.
 - Talos does not ship the Traefik and ServiceLB that k3s bundles, so the ingress and load balancer setup has to be
   chosen again.
 - All migration work is blocked until the mini PC is bought.
