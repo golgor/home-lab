@@ -110,18 +110,20 @@ An action only the admin may take or approve, such as merging to `main`, applyin
 secret value, deleting data or changing the host.
 _Avoid_: Manual step, approval
 
-**owner:robert issue**:
-An issue only Robert can complete, such as buying hardware, adding a secret value or making a decision.
+**owner:human issue**:
+An issue only Robert, the human admin, can complete, such as buying hardware, adding a secret value or making a
+decision. Labelled `owner:human`.
 _Avoid_: Manual task, blocker
 
 **owner:agent issue**:
-An issue the infra bot can complete through a pull request.
+An issue the infra bot can complete through a pull request. Labelled `owner:agent`.
 _Avoid_: Automated task, bot task
 
 **Blocked issue**:
-An issue that cannot start until another issue it is linked to is closed.
+An issue that cannot start until another issue it is linked to is closed. Labelled `blocked`, with the blockers listed
+under _Blocked by_ in its body.
 _Avoid_: On hold, waiting
 
 **Weekly digest**:
-The infra bot's weekly summary of owner:robert issues that are holding up other work.
+The infra bot's weekly summary of owner:human issues that are holding up other work.
 _Avoid_: Report, status update
