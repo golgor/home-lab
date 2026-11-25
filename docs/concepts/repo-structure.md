@@ -6,13 +6,15 @@ This mono-repo organizes everything needed to run the home lab.
 home-lab/
 ├── ansible/                          # Server provisioning playbooks
 ├── applications/
-│   ├── bootstrap/                    # Manually applied (pre-ArgoCD)
-│   │   └── argocd/                   # ArgoCD Helm + Kustomize
+│   ├── bootstrap/                    # Applied by hand to start a cluster
+│   │   ├── argocd/                   # ArgoCD Helm + Kustomize
+│   │   └── root.yaml                 # Root app-of-apps (syncs itself + vendor-apps + custom-apps)
 │   ├── vendor/                       # Third-party apps managed by ArgoCD
 │   │   ├── vendor-apps.yaml          # App of Apps (scans **/application.yaml)
 │   │   ├── sealed-secrets/           # Bitnami Sealed Secrets
 │   │   └── cert-manager/             # TLS certs via Let's Encrypt
 │   └── custom/                       # Self-developed apps managed by ArgoCD
+│       └── custom-apps.yaml          # ApplicationSet (one app per directory)
 ├── infrastructure/                   # Cluster-level infrastructure
 ├── docs/                             # This documentation (MkDocs)
 └── mkdocs.yml
@@ -22,7 +24,7 @@ home-lab/
 
 | Directory | Managed By | Purpose |
 | ----------- | ----------- | --------- |
-| `applications/bootstrap/` | `kubectl` (manual) | Components that must exist before ArgoCD |
+| `applications/bootstrap/` | `kubectl` (manual) | What you apply by hand to start a cluster. The root app-of-apps then manages itself |
 | `applications/vendor/` | ArgoCD (App of Apps) | Third-party applications |
 | `applications/custom/` | ArgoCD | Your own applications |
 | `infrastructure/` | ArgoCD | Cluster-wide resources (namespaces, RBAC, etc.) |

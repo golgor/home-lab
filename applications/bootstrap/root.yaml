@@ -1,0 +1,42 @@
+---
+# Root app-of-apps. It syncs the Argo CD objects that discover everything else,
+# and itself, so a change to any of them, this file included, takes effect on
+# push and hand edits are reverted.
+#
+# Applied by hand only to bootstrap a cluster, or to recover a root that can no
+# longer find this file in git:
+#   kubectl apply -f applications/bootstrap/root.yaml
+#
+# Every file it syncs, this one included, carries "Prune=false,Delete=false", so
+# a typo in the include list, a renamed file or a deleted root cannot cascade
+# through every Application or prune the root itself. No finalizer here, for the
+# same reason.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/golgor/home-lab.git
+    targetRevision: HEAD
+    path: applications
+    directory:
+      # recurse is required: without it Argo CD reads only files directly in
+      # path, and none of the entries below would match.
+      recurse: true
+      # Paths are relative to `path`. One entry per file; add a file by adding
+      # it to the braces.
+      include: "{bootstrap/root.yaml,vendor/vendor-apps.yaml,custom/custom-apps.yaml}"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

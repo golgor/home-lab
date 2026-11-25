@@ -4,6 +4,12 @@ kind: Application
 metadata:
   name: vendor-apps
   namespace: argocd
+  annotations:
+    # Synced by the root app-of-apps (applications/bootstrap/root.yaml). Prune=false: a
+    # typo in the root's include list or a renamed file leaves this in place
+    # instead of deleting it and every Application it owns. Delete=false: the
+    # same if the root is ever deleted with cascade. Delete or rename by hand.
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
   project: default
   source:
