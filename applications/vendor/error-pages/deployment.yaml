@@ -15,12 +15,14 @@ spec:
     spec:
       containers:
         - name: error-pages
-          image: ghcr.io/tarampampam/error-pages:3
+          image: ghcr.io/tarampampam/error-pages:4.2.7
           ports:
             - containerPort: 8080
           env:
             - name: TEMPLATE_NAME
               value: shuffle
+            - name: LOG_LEVEL
+              value: warn
           livenessProbe:
             httpGet:
               path: /healthz
