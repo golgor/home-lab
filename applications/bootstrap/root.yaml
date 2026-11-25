@@ -4,9 +4,11 @@
 # push and hand edits are reverted.
 #
 # Applied by hand only to bootstrap a cluster, or to recover a root that can no
-# longer find this file in git. It lives in the "bootstrap" project, so apply
-# projects.yaml with it:
-#   kubectl apply -f applications/bootstrap/projects.yaml -f applications/bootstrap/root.yaml
+# longer find this file in git:
+#   kubectl apply -f applications/bootstrap/root.yaml
+#
+# Keep this in project "default". Argo CD always has that project; a root in a
+# project it creates itself deadlocks when that project is missing.
 #
 # Every file it syncs, this one included, carries "Prune=false,Delete=false", so
 # a typo in the include list, a renamed file or a deleted root cannot cascade
@@ -20,7 +22,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
-  project: bootstrap
+  project: default
   source:
     repoURL: https://github.com/golgor/home-lab.git
     targetRevision: HEAD

@@ -10,8 +10,7 @@ Mono-repo for home lab infrastructure based on k3s.
     - `argocd/` - ArgoCD (manually applied, not managed by ArgoCD)
     - `root.yaml` - Root app-of-apps: syncs itself, `vendor-apps.yaml` and `custom-apps.yaml`.
       Applied by hand once, then ArgoCD manages it
-    - `projects.yaml` - AppProjects `bootstrap` (root, vendor-apps, custom-apps) and `apps` (everything they
-      create). Synced by the root; applied by hand with it on a new cluster
+    - `projects.yaml` - AppProject `apps` (everything vendor-apps and custom-apps create). Synced by the root
   - `bootstrap/postgres/` - Database Service + EndpointSlice (manually applied)
   - `vendor/` - Third-party apps managed by ArgoCD (App of Apps pattern)
     - `vendor-apps.yaml` - App of Apps, scans for `**/application.yaml`
@@ -44,7 +43,7 @@ ArgoCD and the root app-of-apps must be applied manually once:
 kustomize build --enable-helm applications/bootstrap/argocd | kubectl apply --server-side --force-conflicts -f -
 
 # Apply the root app-of-apps (ArgoCD then manages everything else, the root included)
-kubectl apply -f applications/bootstrap/projects.yaml -f applications/bootstrap/root.yaml
+kubectl apply -f applications/bootstrap/root.yaml
 
 # Apply database endpoint (update IP in endpointslice.yaml first)
 kubectl apply -k applications/bootstrap/postgres/
@@ -109,7 +108,8 @@ On cluster re-install: run `mise run fetch-cert` first, then re-seal all secrets
 
 - **ArgoCD bootstrap is manual** — changes to `applications/bootstrap/argocd/` must be re-applied with kubectl, not pushed and waited on
 - **The root app-of-apps syncs itself** — `applications/bootstrap/root.yaml` syncs itself plus `bootstrap/projects.yaml`, `vendor/vendor-apps.yaml` and `custom/custom-apps.yaml`, so changes to any of them apply on push. Only re-apply it by hand to bootstrap or if the root can no longer find itself in git (e.g. after moving/renaming `bootstrap/root.yaml`). A new top-level Argo CD file must be added to the root's `include` list, or it will not sync.
-- **Two AppProjects** — `bootstrap` holds the root, `vendor-apps` and `custom-apps`; `apps` holds every Application they create. New `vendor/*/application.yaml` files use `project: apps`. Both are permissive (grouping only). The root is in `bootstrap`, so on a new cluster `projects.yaml` must be applied with or before `root.yaml`, or the root fails with `InvalidSpecError`. Delete a project only once no Application uses it.
+- **AppProjects** — the root, `vendor-apps` and `custom-apps` stay in `default`; `apps` holds every Application they create. New `vendor/*/application.yaml` files use `project: apps`. `apps` is permissive (grouping only). Delete a project only once no Application uses it.
+- **Never put the root in a project it creates** — an Application whose project is missing cannot sync (`InvalidSpecError`), so a root in its own synced project deadlocks and needs a manual `kubectl apply` of the project. Argo CD always has `default`, so the root stays there. Also: a sync renders from the root's spec at sync start, so a new `include` entry only takes effect on the root's *next* sync. Moving apps into a new project in the same commit causes `InvalidSpecError` on them until that sync creates it.
 - **`Prune=false,Delete=false` on root-synced files** — every file the root syncs carries this annotation, so an `include` typo, renamed file or deleted root cannot cascade through every Application. `Delete=false` alone does not stop a sync-time prune; keep both. Delete or rename these by hand.
 - **Authentik is disabled, not deleted** — excluded via `exclude: "authentik/**"` in `vendor-apps.yaml`; access is gated by Tailscale instead. Deleting the ArgoCD Application did *not* cascade (no resources-finalizer), so its workloads were removed manually with `kubectl delete namespace authentik`. Its Postgres DB/role are **retained** in Pulumi. Re-enable: remove the exclude, re-apply `vendor-apps.yaml`, and re-add the `authentik-forwardauth` middleware refs (pihole + traefik dashboard IngressRoutes)
 - **Cloudflare record for tailnet must be DNS-only** — the `*.neustrom.net` A-record pointing at the `100.x` tailnet IP must stay grey-cloud. Proxying (orange cloud) breaks it: Cloudflare's edge has no tailnet membership and cannot reach a private `100.x` address

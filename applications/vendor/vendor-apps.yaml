@@ -11,7 +11,7 @@ metadata:
     # same if the root is ever deleted with cascade. Delete or rename by hand.
     argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
-  project: bootstrap
+  project: default
   source:
     repoURL: https://github.com/golgor/home-lab.git
     targetRevision: HEAD
