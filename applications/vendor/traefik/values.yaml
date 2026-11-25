@@ -21,7 +21,6 @@ providers:
 
 gateway:
   enabled: true
-  namespacePolicy: All
   listeners:
     web:
       port: 8000
@@ -43,7 +42,8 @@ gatewayClass:
   enabled: true
 
 service:
-  type: LoadBalancer
+  spec:
+    type: LoadBalancer
 
 api:
   dashboard: true
@@ -82,11 +82,10 @@ ports:
       middlewares:
         - "traefik-default-errors@kubernetescrd"
 
-logs:
-  access:
-    enabled: true
-    filters:
-      statuscodes: "400-599"
+accessLog:
+  enabled: true
+  filters:
+    statusCodes: "400-599"
 
 resources:
   requests:
