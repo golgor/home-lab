@@ -9,11 +9,33 @@ resources:
   - certificate.yaml
   - tlsstore.yaml
   - middleware-errors.yaml
+  # Gateway API standard channel, vendored from
+  # https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.7.0/standard-install.yaml
+  # The Traefik chart stopped shipping these in 40.2.0. Bump this file by hand to
+  # the Gateway API version each Traefik release requires.
+  - gateway-api-crds-v1.7.0.yaml
+
+patches:
+  # Prune=false: a renamed or dropped CRD file leaves the CRDs in place instead
+  # of deleting them, which would delete every Gateway, GatewayClass and
+  # HTTPRoute in the cluster. Delete=false: the same if this Application is ever
+  # deleted with cascade. Delete or rename these by hand.
+  - target:
+      group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: ".*\\.gateway\\.networking\\.k8s\\.io"
+    patch: |-
+      apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      metadata:
+        name: gateway-api-crds
+        annotations:
+          argocd.argoproj.io/sync-options: Prune=false,Delete=false
 
 helmCharts:
   - name: traefik
     repo: https://traefik.github.io/charts
-    version: "39.0.5"
+    version: "43.0.0"
     releaseName: traefik
     namespace: traefik
     includeCRDs: true

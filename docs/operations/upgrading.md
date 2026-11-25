@@ -16,6 +16,29 @@ kustomize build applications/bootstrap/argocd/ --enable-helm \
 Update the chart version in the app's `kustomization.yaml` and commit.
 ArgoCD will sync the change automatically.
 
+### Traefik and the Gateway API CRDs
+
+The Traefik chart no longer ships the Gateway API CRDs (since chart 40.2.0). They are vendored in
+`applications/vendor/traefik/gateway-api-crds-v<version>.yaml` and must be bumped by hand to the version the
+new Traefik release requires (see the [Traefik migration guide](https://doc.traefik.io/traefik/migrate/v3/)):
+
+```bash
+cd applications/vendor/traefik
+curl -fsSL -o gateway-api-crds-v<new>.yaml \
+  https://github.com/kubernetes-sigs/gateway-api/releases/download/v<new>/standard-install.yaml
+git rm gateway-api-crds-v<old>.yaml
+# update the resources: entry in kustomization.yaml, then check the render
+kustomize build --enable-helm . | grep 'bundle-version'
+```
+
+The CRDs carry `Prune=false,Delete=false` (patched in `kustomization.yaml`), so a renamed or dropped file
+leaves them in place. Deleting a CRD would delete every Gateway, GatewayClass and HTTPRoute.
+
+!!! warning "No downgrades"
+    The file also installs the `safe-upgrades.gateway.networking.k8s.io` ValidatingAdmissionPolicy. It rejects
+    Gateway API CRDs older than its own bundle (v1.7.0 today) and experimental CRDs over standard ones, so
+    rolling Traefik back to a chart that renders older CRDs fails to sync until that policy is removed.
+
 ## Upgrading k3s
 
 TODO: Document k3s upgrade process.

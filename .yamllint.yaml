@@ -1,6 +1,10 @@
 ---
 extends: default
 
+# Vendored upstream release assets, kept byte-identical to the release.
+ignore: |
+  applications/vendor/traefik/gateway-api-crds-*.yaml
+
 rules:
   line-length:
     max: 120

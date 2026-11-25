@@ -33,6 +33,9 @@ Everything lives in `applications/vendor/traefik/`:
 - **`tlsstore.yaml`** — tells Traefik to use that cert as the default for all services
 - **`dashboard-ingressroute.yaml`** — exposes the Traefik dashboard at `traefik.neustrom.net/dashboard/`
 - **`middleware-errors.yaml`** — global error page middleware applied to all traffic
+- **`gateway-api-crds-v1.7.0.yaml`** — the Gateway API resource definitions (`Gateway`, `HTTPRoute`, ...),
+  copied from the upstream release. The Traefik chart no longer ships them, so the home lab keeps its own copy.
+  ArgoCD is told never to delete them: removing them would delete every route that uses them.
 
 ## Routing
 
