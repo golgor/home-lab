@@ -6,7 +6,10 @@ Mono-repo for home lab infrastructure based on k3s.
 
 - `ansible/` - Ansible playbooks for server provisioning
 - `applications/` - Application/service configurations
-  - `bootstrap/argocd/` - ArgoCD (manually applied, not managed by ArgoCD)
+  - `bootstrap/` - What you apply by hand to start a cluster
+    - `argocd/` - ArgoCD (manually applied, not managed by ArgoCD)
+    - `root.yaml` - Root app-of-apps: syncs itself, `vendor-apps.yaml` and `custom-apps.yaml`.
+      Applied by hand once, then ArgoCD manages it
   - `bootstrap/postgres/` - Database Service + EndpointSlice (manually applied)
   - `vendor/` - Third-party apps managed by ArgoCD (App of Apps pattern)
     - `vendor-apps.yaml` - App of Apps, scans for `**/application.yaml`
@@ -32,17 +35,14 @@ mise run seal-secret   # Interactively seal a secret from a .env file
 
 ## Bootstrap (manual, not managed by ArgoCD)
 
-ArgoCD and the vendor App of Apps must be applied manually once:
+ArgoCD and the root app-of-apps must be applied manually once:
 
 ```bash
 # Apply ArgoCD
 kustomize build --enable-helm applications/bootstrap/argocd | kubectl apply --server-side --force-conflicts -f -
 
-# Apply App of Apps (ArgoCD then manages everything else)
-kubectl apply -f applications/vendor/vendor-apps.yaml
-
-# Apply Custom Apps ApplicationSet
-kubectl apply -f applications/custom/custom-apps.yaml
+# Apply the root app-of-apps (ArgoCD then manages everything else, the root included)
+kubectl apply -f applications/bootstrap/root.yaml
 
 # Apply database endpoint (update IP in endpointslice.yaml first)
 kubectl apply -k applications/bootstrap/postgres/
@@ -106,7 +106,8 @@ On cluster re-install: run `mise run fetch-cert` first, then re-seal all secrets
 ## Gotchas
 
 - **ArgoCD bootstrap is manual** — changes to `applications/bootstrap/argocd/` must be re-applied with kubectl, not pushed and waited on
-- **vendor-apps.yaml root spec is manual** — the App-of-Apps root is applied by hand, so changes to its *own* spec (e.g. `directory.include`/`exclude`) do **not** sync from git. Re-apply with `kubectl apply -f applications/vendor/vendor-apps.yaml`. (Child app manifests under `applications/vendor/*/` do auto-sync.)
+- **The root app-of-apps syncs itself** — `applications/bootstrap/root.yaml` syncs itself plus `vendor/vendor-apps.yaml` and `custom/custom-apps.yaml`, so changes to any of them apply on push. Only re-apply it by hand to bootstrap or if the root can no longer find itself in git (e.g. after moving/renaming `bootstrap/root.yaml`). A new top-level Argo CD file must be added to the root's `include` list, or it will not sync.
+- **`Prune=false,Delete=false` on root-synced files** — every file the root syncs carries this annotation, so an `include` typo, renamed file or deleted root cannot cascade through every Application. `Delete=false` alone does not stop a sync-time prune; keep both. Delete or rename these by hand.
 - **Authentik is disabled, not deleted** — excluded via `exclude: "authentik/**"` in `vendor-apps.yaml`; access is gated by Tailscale instead. Deleting the ArgoCD Application did *not* cascade (no resources-finalizer), so its workloads were removed manually with `kubectl delete namespace authentik`. Its Postgres DB/role are **retained** in Pulumi. Re-enable: remove the exclude, re-apply `vendor-apps.yaml`, and re-add the `authentik-forwardauth` middleware refs (pihole + traefik dashboard IngressRoutes)
 - **Cloudflare record for tailnet must be DNS-only** — the `*.neustrom.net` A-record pointing at the `100.x` tailnet IP must stay grey-cloud. Proxying (orange cloud) breaks it: Cloudflare's edge has no tailnet membership and cannot reach a private `100.x` address
 - **Apex needs its own record** — a `*.neustrom.net` wildcard does **not** match the bare apex `neustrom.net` (wildcards cover one label to the left, not the apex). The root service (`/`) needs an explicit `neustrom.net` A-record (same DNS-only rule) and a Traefik route matching `Host(\`neustrom.net\`)`. PiHole's local wildcard (`address=/neustrom.net/10.0.0.110`) already covers the apex, so this gap is Cloudflare-only

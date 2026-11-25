@@ -19,15 +19,11 @@ discovers directories under `applications/custom/` and creates an ArgoCD
 Application for each one. Each app gets its own namespace matching the
 directory name.
 
-### Bootstrap (one-time)
+### Bootstrap
 
-The ApplicationSet must be applied manually once:
-
-```bash
-kubectl apply -f applications/custom/custom-apps.yaml
-```
-
-After that, adding a new directory under `applications/custom/` is enough
+The ApplicationSet is synced by the root app-of-apps
+(`applications/bootstrap/root.yaml`), so there is nothing to apply by hand beyond the
+root itself. Adding a new directory under `applications/custom/` is enough
 for ArgoCD to pick it up automatically.
 
 ## Adding a Custom App

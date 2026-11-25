@@ -146,18 +146,24 @@ Verify:
 kubectl get pods -n traefik
 ```
 
-## Step 7: Apply the App of Apps
+## Step 7: Apply the root app-of-apps
 
 With the critical path running, apply the root Application that tells ArgoCD
 to manage everything else:
 
 ```bash
-kubectl apply -f applications/vendor/vendor-apps.yaml
+kubectl apply -f applications/bootstrap/root.yaml
 ```
 
-ArgoCD recursively scans `applications/vendor/` for `**/application.yaml`
-files and begins syncing each app automatically. This includes Authentik and
-any other vendor apps.
+The root syncs three files: itself, `applications/vendor/vendor-apps.yaml`
+and `applications/custom/custom-apps.yaml`. Because it syncs itself, later
+changes to any of them take effect on push; this is the only time you apply
+it by hand.
+
+- `vendor-apps` recursively scans `applications/vendor/` for
+  `**/application.yaml` files and syncs each vendor app.
+- `custom-apps` is an ApplicationSet that creates one Application per
+  directory under `applications/custom/`.
 
 ## Step 8: Get the ArgoCD admin password
 
