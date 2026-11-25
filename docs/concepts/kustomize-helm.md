@@ -18,7 +18,7 @@ Rather than using Helm directly, Helm charts are referenced in
 helmCharts:
   - name: argo-cd
     repo: https://argoproj.github.io/argo-helm
-    version: "9.4.10"
+    version: "10.20.0"
     releaseName: argocd
     namespace: argocd
     valuesFile: values.yaml
