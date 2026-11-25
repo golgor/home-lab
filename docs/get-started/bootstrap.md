@@ -152,8 +152,7 @@ With the critical path running, apply the root Application that tells ArgoCD
 to manage everything else:
 
 ```bash
-kubectl apply -f applications/bootstrap/projects.yaml \
-  -f applications/bootstrap/root.yaml
+kubectl apply -f applications/bootstrap/root.yaml
 ```
 
 The root syncs four files: itself, `applications/bootstrap/projects.yaml`,
@@ -162,10 +161,10 @@ The root syncs four files: itself, `applications/bootstrap/projects.yaml`,
 changes to any of them take effect on push; this is the only time you apply
 it by hand.
 
-`projects.yaml` defines two Argo CD projects: `bootstrap` for the root,
-`vendor-apps` and `custom-apps`, and `apps` for everything they create. The
-root itself is in `bootstrap`, so that project has to exist before the root,
-which is why both files are applied together.
+`projects.yaml` defines the Argo CD project `apps`, which holds everything
+`vendor-apps` and `custom-apps` create. The root, `vendor-apps` and
+`custom-apps` stay in Argo CD's built-in `default` project, so the root can
+always sync, even when `apps` does not exist yet.
 
 - `vendor-apps` recursively scans `applications/vendor/` for
   `**/application.yaml` files and syncs each vendor app.

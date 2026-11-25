@@ -8,7 +8,7 @@ home-lab/
 ├── applications/
 │   ├── bootstrap/                    # Applied by hand to start a cluster
 │   │   ├── argocd/                   # ArgoCD Helm + Kustomize
-│   │   ├── projects.yaml             # AppProjects: bootstrap, apps
+│   │   ├── projects.yaml             # AppProject apps (root and discovery stay in default)
 │   │   └── root.yaml                 # Root app-of-apps (syncs itself, projects, vendor-apps, custom-apps)
 │   ├── vendor/                       # Third-party apps managed by ArgoCD
 │   │   ├── vendor-apps.yaml          # App of Apps (scans **/application.yaml)
