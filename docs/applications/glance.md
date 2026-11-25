@@ -79,8 +79,8 @@ blocked domains.
 | --- | --- |
 | Namespace | `glance` |
 | URL | [neustrom.net](https://neustrom.net) |
-| Image | `glanceapp/glance:v0.8.4` |
+| Image | `glanceapp/glance:v0.8.8` |
 | Config | ConfigMap `glance-config` (file: `config/glance.yml`) |
 | Secrets | `glance-secrets` (SealedSecret — `ICS_URL`, `PIHOLE_TOKEN`) |
-| iCal sidecar | `ghcr.io/awildleon/glance-ical-events:latest` on port 8076 |
+| iCal sidecar | `ghcr.io/awildleon/glance-ical-events:v1.3.3` on port 8076 |
 | glance-k8s | `ghcr.io/lukasdietrich/glance-k8s/glance-k8s:v0.4.7` — service `glance-k8s` |
