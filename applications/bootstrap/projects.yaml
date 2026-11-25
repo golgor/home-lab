@@ -1,0 +1,58 @@
+---
+# Argo CD project "bootstrap": the objects that discover everything else, i.e.
+# the root app-of-apps (bootstrap/root.yaml), vendor-apps and custom-apps.
+#
+# Permissive on purpose: projects here group apps in the UI and allow what
+# "default" allows, so moving an app into one cannot block its sync. Tighten
+# later if needed.
+#
+# Synced by the root in sync wave -1, before the objects in the same sync that
+# reference it. Prune=false: a typo in the root's include list or a renamed file
+# leaves this in place; without it, every Application in the project would stop
+# syncing. Delete=false: the same if the root is ever deleted with cascade.
+# Delete or rename this by hand only, and only once no Application uses it.
+#
+# The root itself is in this project, so on a new cluster apply this file
+# before root.yaml:
+#   kubectl apply -f applications/bootstrap/projects.yaml -f applications/bootstrap/root.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bootstrap
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  description: "Root app-of-apps, vendor-apps and custom-apps"
+  sourceRepos:
+    - "*"
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+# Argo CD project "apps": every Application that vendor-apps and custom-apps
+# create (vendor/*/application.yaml and one per applications/custom/*).
+# Same permissive spec and annotations as "bootstrap" above, for the same
+# reasons.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: apps
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  description: "Vendor and custom apps"
+  sourceRepos:
+    - "*"
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

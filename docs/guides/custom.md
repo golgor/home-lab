@@ -24,7 +24,8 @@ directory name.
 The ApplicationSet is synced by the root app-of-apps
 (`applications/bootstrap/root.yaml`), so there is nothing to apply by hand beyond the
 root itself. Adding a new directory under `applications/custom/` is enough
-for ArgoCD to pick it up automatically.
+for ArgoCD to pick it up automatically. Generated apps go in the `apps`
+Argo CD project.
 
 ## Adding a Custom App
 
