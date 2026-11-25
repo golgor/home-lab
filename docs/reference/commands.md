@@ -8,7 +8,8 @@ kustomize build applications/bootstrap/argocd/ --enable-helm \
   | kubectl apply --server-side --force-conflicts -f -
 
 # Apply the root app-of-apps (only needed once; it syncs itself afterwards)
-kubectl apply -f applications/bootstrap/root.yaml
+kubectl apply -f applications/bootstrap/projects.yaml \
+  -f applications/bootstrap/root.yaml
 
 # Get ArgoCD admin password
 kubectl -n argocd get secret argocd-initial-admin-secret \

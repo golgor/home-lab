@@ -31,7 +31,7 @@ metadata:
   name: grafana
   namespace: argocd
 spec:
-  project: default
+  project: apps
   source:
     repoURL: https://github.com/golgor/home-lab.git
     targetRevision: HEAD

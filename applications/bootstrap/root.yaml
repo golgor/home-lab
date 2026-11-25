@@ -4,8 +4,9 @@
 # push and hand edits are reverted.
 #
 # Applied by hand only to bootstrap a cluster, or to recover a root that can no
-# longer find this file in git:
-#   kubectl apply -f applications/bootstrap/root.yaml
+# longer find this file in git. It lives in the "bootstrap" project, so apply
+# projects.yaml with it:
+#   kubectl apply -f applications/bootstrap/projects.yaml -f applications/bootstrap/root.yaml
 #
 # Every file it syncs, this one included, carries "Prune=false,Delete=false", so
 # a typo in the include list, a renamed file or a deleted root cannot cascade
@@ -19,7 +20,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
-  project: default
+  project: bootstrap
   source:
     repoURL: https://github.com/golgor/home-lab.git
     targetRevision: HEAD
@@ -30,7 +31,7 @@ spec:
       recurse: true
       # Paths are relative to `path`. One entry per file; add a file by adding
       # it to the braces.
-      include: "{bootstrap/root.yaml,vendor/vendor-apps.yaml,custom/custom-apps.yaml}"
+      include: "{bootstrap/root.yaml,bootstrap/projects.yaml,vendor/vendor-apps.yaml,custom/custom-apps.yaml}"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

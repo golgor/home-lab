@@ -8,7 +8,8 @@ home-lab/
 ├── applications/
 │   ├── bootstrap/                    # Applied by hand to start a cluster
 │   │   ├── argocd/                   # ArgoCD Helm + Kustomize
-│   │   └── root.yaml                 # Root app-of-apps (syncs itself + vendor-apps + custom-apps)
+│   │   ├── projects.yaml             # AppProjects: bootstrap, apps
+│   │   └── root.yaml                 # Root app-of-apps (syncs itself, projects, vendor-apps, custom-apps)
 │   ├── vendor/                       # Third-party apps managed by ArgoCD
 │   │   ├── vendor-apps.yaml          # App of Apps (scans **/application.yaml)
 │   │   ├── sealed-secrets/           # Bitnami Sealed Secrets
