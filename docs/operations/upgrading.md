@@ -16,6 +16,14 @@ kustomize build applications/bootstrap/argocd/ --enable-helm \
 Update the chart version in the app's `kustomization.yaml` and commit.
 ArgoCD will sync the change automatically.
 
+!!! warning "Authentik: one release family per hop"
+    Authentik refuses to migrate a database last seen more than one release
+    family back (2026.2 → 2026.5 → 2026.8). The pod crash-loops with
+    `Major version skips are not allowed`. Bump to the newest chart of each
+    family in turn, one merge and sync per hop, and check the logs show the
+    migrations finished before the next bump. Downgrades are unsupported, so
+    back up the `authentik` database first.
+
 ### Traefik and the Gateway API CRDs
 
 The Traefik chart no longer ships the Gateway API CRDs (since chart 40.2.0). They are vendored in

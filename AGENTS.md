@@ -17,7 +17,8 @@ Mono-repo for home lab infrastructure based on k3s.
     - `sealed-secrets/` - Bitnami Sealed Secrets
     - `cert-manager/` - cert-manager + Let's Encrypt ClusterIssuer (Cloudflare DNS challenge)
     - `traefik-certs/` - Wildcard Certificate + TLSStore for Traefik default TLS
-    - `authentik/` - Authentik identity provider (SSO, forward-auth) — **currently disabled** (excluded in `vendor-apps.yaml`); access is gated by Tailscale instead. Files kept for easy re-enable.
+    - `authentik/` - Authentik identity provider (SSO). Enabled; provides OIDC login for cost-tracker. Its
+      `authentik-forwardauth` middleware is deployed but no route uses it; access is gated by Tailscale instead.
   - `custom/` - Self-developed apps managed by ArgoCD (ApplicationSet pattern)
     - `custom-apps.yaml` - ApplicationSet, scans for directories under `applications/custom/*`
     - `cost-tracker/` - Household expense-sharing app
@@ -111,7 +112,14 @@ On cluster re-install: run `mise run fetch-cert` first, then re-seal all secrets
 - **AppProjects** — the root, `vendor-apps` and `custom-apps` stay in `default`; `apps` holds every Application they create. New `vendor/*/application.yaml` files use `project: apps`. `apps` is permissive (grouping only). Delete a project only once no Application uses it.
 - **Never put the root in a project it creates** — an Application whose project is missing cannot sync (`InvalidSpecError`), so a root in its own synced project deadlocks and needs a manual `kubectl apply` of the project. Argo CD always has `default`, so the root stays there. Also: a sync renders from the root's spec at sync start, so a new `include` entry only takes effect on the root's *next* sync. Moving apps into a new project in the same commit causes `InvalidSpecError` on them until that sync creates it.
 - **`Prune=false,Delete=false` on root-synced files** — every file the root syncs carries this annotation, so an `include` typo, renamed file or deleted root cannot cascade through every Application. `Delete=false` alone does not stop a sync-time prune; keep both. Delete or rename these by hand.
-- **Authentik is disabled, not deleted** — excluded via `exclude: "authentik/**"` in `vendor-apps.yaml`; access is gated by Tailscale instead. Deleting the ArgoCD Application did *not* cascade (no resources-finalizer), so its workloads were removed manually with `kubectl delete namespace authentik`. Its Postgres DB/role are **retained** in Pulumi. Re-enable: remove the exclude, re-apply `vendor-apps.yaml`, and re-add the `authentik-forwardauth` middleware refs (pihole + traefik dashboard IngressRoutes)
+- **Authentik is enabled for cost-tracker OIDC** — re-enabled in #109 (the `exclude: "authentik/**"` in
+  `vendor-apps.yaml` is gone). cost-tracker logs in via OIDC against `auth.neustrom.net`. The `authentik-forwardauth`
+  Middleware is deployed but no route references it; other services are gated by Tailscale. Its Postgres DB/role are
+  managed in Pulumi. The Application has no resources-finalizer, so deleting it does *not* cascade to its workloads
+- **Authentik upgrades cannot skip a release family** — authentik refuses to migrate a DB last seen more than one
+  family back (2026.2 → 2026.5 → 2026.8, enforced by `ensure_allowed_version()` in `lifecycle/migrate.py`; the pod
+  crash-loops with `Major version skips are not allowed`). Always step through the newest chart of each family, one
+  merge and sync per hop, and confirm the migrations finished before the next bump
 - **Cloudflare record for tailnet must be DNS-only** — the `*.neustrom.net` A-record pointing at the `100.x` tailnet IP must stay grey-cloud. Proxying (orange cloud) breaks it: Cloudflare's edge has no tailnet membership and cannot reach a private `100.x` address
 - **Apex needs its own record** — a `*.neustrom.net` wildcard does **not** match the bare apex `neustrom.net` (wildcards cover one label to the left, not the apex). The root service (`/`) needs an explicit `neustrom.net` A-record (same DNS-only rule) and a Traefik route matching `Host(\`neustrom.net\`)`. PiHole's local wildcard (`address=/neustrom.net/10.0.0.110`) already covers the apex, so this gap is Cloudflare-only
 - **Sealed Secrets CRD**: kustomize's `helm template` skips `crds/` — fixed with `includeCRDs: true` in the helmCharts entry
