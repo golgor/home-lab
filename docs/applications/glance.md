@@ -83,4 +83,4 @@ blocked domains.
 | Config | ConfigMap `glance-config` (file: `config/glance.yml`) |
 | Secrets | `glance-secrets` (SealedSecret — `ICS_URL`, `PIHOLE_TOKEN`) |
 | iCal sidecar | `ghcr.io/awildleon/glance-ical-events:v1.3.3` on port 8076 |
-| glance-k8s | `ghcr.io/lukasdietrich/glance-k8s/glance-k8s:v0.4.7` — service `glance-k8s` |
+| glance-k8s | `ghcr.io/lukasdietrich/glance-k8s/glance-k8s:v0.5.9` — service `glance-k8s` |
