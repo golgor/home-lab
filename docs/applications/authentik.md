@@ -14,6 +14,12 @@ It can also protect applications that have no built-in login at all, by
 sitting in front of them and requiring authentication before traffic is
 allowed through (this is called *forward authentication*).
 
+!!! info "Current use"
+    Today the only app that logs in through Authentik is
+    [cost-tracker](cost-tracker.md), using OpenID Connect (OIDC). The
+    forward-auth middleware is deployed, but no route uses it yet. Other
+    services are reachable only over the home LAN or Tailscale.
+
 ## How it works
 
 ```mermaid
