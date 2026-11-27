@@ -2,7 +2,7 @@
 kubectl = "latest"
 yamllint = "latest"
 kubeconform = "latest"
-kubeseal = "0.35.0"
+kubeseal = "latest"
 helm = "4"
 uv = "latest"
 markdownlint-cli2 = "latest"
